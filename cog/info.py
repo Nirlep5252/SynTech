@@ -6,9 +6,6 @@ import discord
 import psutil
 from discord.ext import commands, tasks
 
-from tools import timeago
-
-
 class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
