@@ -18,7 +18,7 @@ for filename in os.listdir('./cogs'):
 async def on_ready():
     logging.info('Bot is ready')
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=f",help | {len(bot.commands)} commands"))
+        activity=discord.Activity(type=discord.ActivityType.watching, name=f"Add text here"))
 
 @bot.command(name="ping", usage="", description="Display the bot's ping.")
 @commands.cooldown(1, 2, commands.BucketType.member)
