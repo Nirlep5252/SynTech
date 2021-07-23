@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
 logging.basicConfig(level=logging.INFO)
+bot.load_extension('jishaku')
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
