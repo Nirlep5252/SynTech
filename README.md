@@ -1,4 +1,4 @@
 Make .env file
 ```
-TOKEN=token go brrrr
+DISCORD_BOT_SECRET=token go brrrr
 ```
