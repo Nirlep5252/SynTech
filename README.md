@@ -1,4 +1,4 @@
-#Make .env file
+Make .env file
 ```
 TOKEN=token go brrrr
 ```
