@@ -6,7 +6,7 @@ import discord
 import psutil
 from discord.ext import commands, tasks
 
-class Info(commands.Cog):
+class info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
@@ -14,8 +14,6 @@ class Info(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('Info is ready')
-        global startdate
-        startdate = datetime.now()
 
     @commands.command(aliases=["botinfo", "stats", "status"])
     async def about(self, ctx):
@@ -32,4 +30,4 @@ class Info(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(Info(bot=bot))
+    bot.add_cog(info(bot=bot))

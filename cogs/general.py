@@ -1,11 +1,11 @@
 import logging
 
 import discord
+from Discord_Games import ChessGame
 from discord.ext import commands
 
 from Utils.button import Button
 from Utils.select import Select
-
 
 class general(commands.Cog):
     def __init__(self, bot):
@@ -26,3 +26,6 @@ class general(commands.Cog):
 
 def setup(bot):
     bot.add_cog(general(bot=bot))
+
+
+
