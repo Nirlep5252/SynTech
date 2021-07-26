@@ -64,6 +64,21 @@ class moderation(commands.Cog):
                 await ctx.send(f'you warned {member.name}')
                 await member.send(embed=embed)
 
+        elif 3 <= e['warnings'] < 7:
+            db.collection.update_one(
+                    filter={"_id": member.id},
+                    update={"$set": {"warnings":  e['warnings'] + 1}}
+                )
+            await member.send(f'You were kicked from {ctx.guild.name}')
+            await member.kick(reason=reason)
+            await ctx.send(f'{member.name} was kicked.')
+        elif e['warnings'] >= 7:
+            a = db.collection.find_one({"_id": member.id, "warnings": e['warnings']})
+            await member.send(f'You were banned from {ctx.guild.name}')
+            await member.ban(reason=reason)
+            await ctx.send(f'{member} was banned.')
+            db.collection.delete_one(a)
+
         else:
             db.collection.update_one(
                     filter={"_id": member.id},
@@ -81,23 +96,19 @@ class moderation(commands.Cog):
         e = db.collection.find_one(
             {"_id": member.id})
 
-        if e['warnings'] == 0:
-            await ctx.send("User has no warnings")
+        if e is None:
+              await ctx.send(f"{member.name} has no warnings")
+
+        elif e['warnings'] == 0:
+            await ctx.send(f"{member.name} has no warnings")
             return
 
-        if e is None:
-               ctx.send("User has no warnings")
-
         else:
-            if e['warnings'] == 0:
-                await ctx.send("User has no warnings")
-                return
-
             db.collection.update_one(
                 filter={"_id": member.id},
                 update={"$set": {"warnings": e['warnings'] - 1}}
             )
-            await ctx.send(f'you removed one warning from {member.name}')
+            await ctx.send(f'{member.name} has one less warn')
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -108,14 +119,15 @@ class moderation(commands.Cog):
         if e is None:
                embed = discord.Embed(title="Warnings", description="You have no warnings", color=MAIN_COLOR)
                await ctx.send(embed=embed)
+
+        elif e['warnings'] == 0:
+            embed = discord.Embed(title="Warnings", description="You have no warnings", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+            return
+
         else:
-            if e['warnings'] == 0:
-                embed = discord.Embed(title="Warnings", description="You have no warnings", color=MAIN_COLOR)
-                await ctx.send(embed=embed)
-                return
-            else:
-              embed = discord.Embed(title="Warnings", description=f"You have {e['warnings']} warnings", color=WARN_COLOR)
-              await ctx.send(embed=embed)
+            embed = discord.Embed(title="Warnings", description=f"You have {e['warnings']} warnings", color=WARN_COLOR)
+            await ctx.send(embed=embed)
 
     @commands.command(aliases=['purge'])
     @commands.has_permissions(manage_messages=True)
