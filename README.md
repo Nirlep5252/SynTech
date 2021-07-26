@@ -1,7 +1,7 @@
 SynTech
 ====================
 
-Hey this bot was made for the Synterra-Technologies Team
+Synterra-Technologies Team
 ---------------------
 
 This bot was made in python
