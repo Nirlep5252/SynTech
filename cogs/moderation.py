@@ -3,10 +3,9 @@ import logging
 import asyncio
 import discord
 from discord.ext import commands
-import json
 
-from Utils.database import db
-from config import MAIN_COLOR, ERROR_COLOR
+from utils.database import db
+from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR
 from config import Config as config
 
 class moderation(commands.Cog):
@@ -40,15 +39,20 @@ class moderation(commands.Cog):
         await ctx.send(f'{channel.mention} is now unlocked.')
 
     @commands.command()
-  #  @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
     async def warn(self, ctx, member: discord.Member, *, reason="Reason was not given"):
-        #if member == ctx.author:
-         #   embed1 = discord.Embed(title="Oh no",
-         #                         description=f"Sorry but no",
-           #                       color=ERROR_COLOR)
-          #  await ctx.send(embed=embed1)
-          #  return
+        if member == ctx.author:
+            embed = discord.Embed(title="Oh no",
+                                  description=f"Sorry but no",
+                                  color=ERROR_COLOR)
+            await ctx.send(embed=embed)
+            return
+
+        if member.id == 754432225163870309:
+            embed = discord.Embed(description="How **could** you", color=ERROR_COLOR)
+            await ctx.send(embed=embed)
+            return
 
         e = db.collection.find_one(
                 {"_id": member.id})
@@ -70,7 +74,7 @@ class moderation(commands.Cog):
             await member.send(embed=embed)
 
     @commands.command()
-    #@commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
     async def rwarn(self, ctx, member: discord.Member):
 
@@ -79,12 +83,16 @@ class moderation(commands.Cog):
 
         if e['warnings'] == 0:
             await ctx.send("User has no warnings")
-            return;
+            return
 
         if e is None:
                ctx.send("User has no warnings")
 
         else:
+            if e['warnings'] == 0:
+                await ctx.send("User has no warnings")
+                return
+
             db.collection.update_one(
                 filter={"_id": member.id},
                 update={"$set": {"warnings": e['warnings'] - 1}}
@@ -92,21 +100,22 @@ class moderation(commands.Cog):
             await ctx.send(f'you removed one warning from {member.name}')
 
     @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    @commands.guild_only()
     async def warns(self, ctx, member: discord.Member):
         e = db.collection.find_one({"_id": member.id})
 
-        if e['warnings'] == 0:
-            await ctx.send("You have no warnings")
-            return;
-
         if e is None:
-               embed = discord.Embed(title="Warnings", description="You have no warnings")
+               embed = discord.Embed(title="Warnings", description="You have no warnings", color=MAIN_COLOR)
                await ctx.send(embed=embed)
         else:
-            embed = discord.Embed(title="Warnings", description=f"You have {e['warnings']} warnings")
-            await ctx.send(embed=embed)
-
-
+            if e['warnings'] == 0:
+                embed = discord.Embed(title="Warnings", description="You have no warnings", color=MAIN_COLOR)
+                await ctx.send(embed=embed)
+                return
+            else:
+              embed = discord.Embed(title="Warnings", description=f"You have {e['warnings']} warnings", color=WARN_COLOR)
+              await ctx.send(embed=embed)
 
     @commands.command(aliases=['purge'])
     @commands.has_permissions(manage_messages=True)

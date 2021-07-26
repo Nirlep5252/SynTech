@@ -4,8 +4,8 @@ import discord
 from Discord_Games import ChessGame
 from discord.ext import commands
 
-from Utils.button import Button
-from Utils.select import Select
+from utils.button import Button
+from utils.select import Select
 
 class general(commands.Cog):
     def __init__(self, bot):
