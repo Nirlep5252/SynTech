@@ -23,7 +23,7 @@ for filename in os.listdir('./cogs'):
 async def on_ready():
     logging.info('Bot is ready')
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=f"WIP"))
+        activity=discord.Activity(type=discord.ActivityType.watching, name=f"HI, Welcome"))
 
 load_dotenv('.env')
 bot.run(os.getenv('DISCORD_BOT_SECRET'))

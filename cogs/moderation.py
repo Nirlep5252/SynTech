@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from utils.database import db
-from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR
+from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL
 from config import Config as config
 
 class moderation(commands.Cog):
@@ -41,7 +41,15 @@ class moderation(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
-    async def warn(self, ctx, member: discord.Member, *, reason="Reason was not given"):
+    async def warn(self, ctx, member: discord.Member, *, reason=None):
+        if reason == None:
+            embed = discord.Embed(title="Error",
+                                  description="You have to add a reason for this warning",
+                                  color=ERROR_COLOR).set_footer(text="If you think this was a mistake dm the owner",
+                                  icon_url=self.bot.user.avatar.url)
+            await ctx.send(embed=embed)
+            return
+
         if member == ctx.author:
             embed = discord.Embed(title="Oh no",
                                   description=f"Sorry but no",
@@ -54,6 +62,7 @@ class moderation(commands.Cog):
             await ctx.send(embed=embed)
             return
 
+        channel = self.bot.get_channel(LOG_CHANNEL)
         e = db.collection.find_one(
                 {"_id": member.id})
 
@@ -61,7 +70,10 @@ class moderation(commands.Cog):
                 warns = {"_id": member.id, "warnings": 1}
                 db.collection.insert_one(warns)
                 embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
-                await ctx.send(f'you warned {member.name}')
+                warning = discord.Embed(title="Warned", description=f"You have warned {member.name} for {reason}")
+                await ctx.send(embed=warning)
+                Log = discord.Embed(title="Warn", description=f"{member.name} has got there first warning\nReason: {reason}\nStaff Member: {ctx.author}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+                await channel.send(embed=Log)
                 await member.send(embed=embed)
 
         elif 3 <= e['warnings'] < 7:
@@ -72,11 +84,15 @@ class moderation(commands.Cog):
             await member.send(f'You were kicked from {ctx.guild.name}')
             await member.kick(reason=reason)
             await ctx.send(f'{member.name} was kicked.')
+            Log_Kick = discord.Embed(title="Kicked", description=f"{member.name} has been kicked\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+            await channel.send(embed=Log_Kick)
         elif e['warnings'] >= 7:
             a = db.collection.find_one({"_id": member.id, "warnings": e['warnings']})
             await member.send(f'You were banned from {ctx.guild.name}')
             await member.ban(reason=reason)
             await ctx.send(f'{member} was banned.')
+            Log_Ban = discord.Embed(title="Banned", description=f"{member.name} has been banned\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+            await channel.send(embed=Log_Ban)
             db.collection.delete_one(a)
 
         else:
@@ -85,8 +101,27 @@ class moderation(commands.Cog):
                     update={"$set": {"warnings":  e['warnings'] + 1}}
                 )
             embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
+            warning_added = discord.Embed(title="Warned Added", description=f"You warned {member.name} for {reason}")
             await ctx.send(f'warn was added to {member.name}')
+            Log_Warn = discord.Embed(title="Warn", description=f"{member.name} has been warned\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings'] + 1}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+            await channel.send(embed=Log_Warn)
             await member.send(embed=embed)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def clearwarns(self, ctx, member: discord.Member):
+
+        e = db.collection.find_one(
+            {"_id": member.id})
+
+        if e is None:
+              await ctx.send(f"{member.name} has no warnings")
+
+        else:
+            a = db.collection.find_one({"_id": member.id, "warnings": e['warnings']})
+            db.collection.delete_one(a)
+            await ctx.send(f'{member.name} Has been cleared')
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
@@ -100,7 +135,7 @@ class moderation(commands.Cog):
               await ctx.send(f"{member.name} has no warnings")
 
         elif e['warnings'] == 0:
-            await ctx.send(f"{member.name} has no warnings")
+            await ctx.send(f"{member.name} has had there warnings removed by a staff")
             return
 
         else:

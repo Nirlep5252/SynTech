@@ -1,6 +1,5 @@
 import logging
 
-import discord
 from discord.ext import commands
 
 from utils.button import Button
@@ -13,7 +12,6 @@ class general(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('General is ready')
-
 
     @commands.command()
     async def hi(self, ctx):
