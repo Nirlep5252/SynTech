@@ -72,7 +72,7 @@ class moderation(commands.Cog):
                 embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
                 warning = discord.Embed(title="Warned", description=f"You have warned {member.name} for {reason}")
                 await ctx.send(embed=warning)
-                Log = discord.Embed(title="Warn", description=f"{member.name} has got there first warning\nReason: {reason}\nStaff Member: {ctx.author}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+                Log = discord.Embed(title="Warn", description=f"{member.name} has got there first warning\nReason: {reason}\nStaff Member: {ctx.author}", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
                 await channel.send(embed=Log)
                 await member.send(embed=embed)
 
@@ -84,14 +84,14 @@ class moderation(commands.Cog):
             await member.send(f'You were kicked from {ctx.guild.name}')
             await member.kick(reason=reason)
             await ctx.send(f'{member.name} was kicked.')
-            Log_Kick = discord.Embed(title="Kicked", description=f"{member.name} has been kicked\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+            Log_Kick = discord.Embed(title="Kicked", description=f"{member.name} has been kicked\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}", color=WARN_COLOR).set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
             await channel.send(embed=Log_Kick)
         elif e['warnings'] >= 7:
             a = db.collection.find_one({"_id": member.id, "warnings": e['warnings']})
             await member.send(f'You were banned from {ctx.guild.name}')
             await member.ban(reason=reason)
             await ctx.send(f'{member} was banned.')
-            Log_Ban = discord.Embed(title="Banned", description=f"{member.name} has been banned\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}").set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
+            Log_Ban = discord.Embed(title="Banned", description=f"{member.name} has been banned\nReason: {reason}\nStaff Member: {ctx.author}\nWarning Number: {e['warnings']}", color=ERROR_COLOR).set_footer(text="If you think this was a mistake dm the owner", icon_url=self.bot.user.avatar.url)
             await channel.send(embed=Log_Ban)
             db.collection.delete_one(a)
 
