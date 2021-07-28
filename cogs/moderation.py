@@ -18,7 +18,7 @@ class moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        logging.info('General is ready')
+        logging.info('Moderation is ready')
 
     @commands.command()
     @commands.has_permissions(manage_channels=True)
