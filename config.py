@@ -8,6 +8,7 @@ Whatever_we_put = ''
 MAIN_COLOR = discord.Color.green()
 ERROR_COLOR = discord.Color.red()
 WARN_COLOR = discord.Color.orange()
+VERIFIED = '<a:check:870155042659921941>'
 LOG_CHANNEL = 869369735886823455
 
 class Config:
