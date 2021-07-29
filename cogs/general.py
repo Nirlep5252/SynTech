@@ -5,7 +5,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import ERROR_COLOR
+from config import ERROR_COLOR, MAIN_COLOR, VERIFIED
 from utils.button import Button
 from utils.select import Select
 
@@ -16,6 +16,19 @@ class general(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('General is ready')
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if payload.message_id != 870172390108327936:
+            return
+        guild = self.bot.get_guild(payload.guild_id)
+        role = guild.get_role(870159097524273262)
+        member_role = guild.get_role(870161379141763092)
+        if str(payload.emoji) == VERIFIED:
+            await payload.member.add_roles(role)
+            await payload.member.add_roles(member_role)
+            embed = discord.Embed(title="Verified", description=f"You have been Verified, You can now chat with the other developers!", color=MAIN_COLOR).set_footer(text=f"Welcome to the server", icon_url=self.bot.user.avatar.url)
+            await payload.member.send(embed=embed)
 
     @commands.command()
     async def hi(self, ctx):

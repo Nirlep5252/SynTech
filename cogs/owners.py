@@ -1,8 +1,10 @@
 import logging
 
+import discord
 from discord.ext import commands
 
-from config import Config as config
+from config import Config as config, VERIFIED, MAIN_COLOR
+
 
 class owners(commands.Cog):
     def __init__(self, bot):
@@ -15,6 +17,13 @@ class owners(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info("Owners is ready")
+
+    @commands.command()
+    @commands.check(developer_check)
+    async def verify(self, ctx):
+        embed = discord.Embed(title="Verification", description=f"Please hit the {VERIFIED} emoji to be allowed into the server!", color=MAIN_COLOR).set_footer(text="If you do not get the member or verified role please dm a staff", icon_url=self.bot.user.avatar.url)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction(VERIFIED)
 
     @commands.command()
     @commands.check(developer_check)
