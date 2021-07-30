@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 from config import Config as config, VERIFIED, MAIN_COLOR
+from utils.button import Verify, Ticket, Close
 
 
 class owners(commands.Cog):
@@ -16,14 +17,23 @@ class owners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        logging.info("Owners is ready")
+            self.bot.add_view(Verify())
+            self.bot.add_view(Ticket())
+            self.bot.add_view(Close())
+            logging.info("Owners is ready")
 
     @commands.command()
     @commands.check(developer_check)
     async def verify(self, ctx):
-        embed = discord.Embed(title="Verification", description=f"Please hit the {VERIFIED} emoji to be allowed into the server!", color=MAIN_COLOR).set_footer(text="If you do not get the member or verified role please dm a staff", icon_url=self.bot.user.avatar.url)
-        message = await ctx.send(embed=embed)
-        await message.add_reaction(VERIFIED)
+        embed = discord.Embed(title="Verification", description=f"Please hit the button with the {VERIFIED} emoji to be allowed into the server!", color=MAIN_COLOR).set_footer(text="If you do not get the member or verified role please dm a staff", icon_url=self.bot.user.avatar.url)
+        message = await ctx.send(embed=embed, view=Verify())
+        #await message.add_reaction(VERIFIED)
+
+    @commands.command()
+    @commands.check(developer_check)
+    async def ticket(self,ctx):
+        embed = discord.Embed(title="Support", description="Please only make a ticket if you need support or have something to ask", color=MAIN_COLOR).set_footer(text="If you have any problems making a ticket please dm a staff", icon_url=self.bot.user.avatar.url)
+        await ctx.send(embed=embed, view=Ticket())
 
     @commands.command()
     @commands.check(developer_check)
