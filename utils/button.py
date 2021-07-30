@@ -33,6 +33,9 @@ class Verify(discord.ui.View):
         await interaction.user.add_roles(role)
         await interaction.user.add_roles(member_role)
         embed = discord.Embed(title="Verified", description=f"You have been Verified, You can now chat with the other developers!", color=MAIN_COLOR).set_footer(text=f"Welcome to the server", icon_url=interaction.user.avatar.url)
+        welcome = interaction.guild.get_channel(867935486298177606)
+        welcome_embed = discord.Embed(title="Welcome", description=f"Hey guys welcome {interaction.user.name} to the server!", color=MAIN_COLOR).set_footer(text="Welcome to the server", icon_url=interaction.user.avatar.url)
+        await welcome.send(embed=welcome_embed)
         await interaction.user.send(embed=embed)
 
 class Close(discord.ui.View):
@@ -42,15 +45,15 @@ class Close(discord.ui.View):
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, emoji=f"{CLOSE_EMOJI}", custom_id="close_view:red")
     async def close(self, button, interaction):
         e = db.collection.find_one(
-            {"ticket": int(interaction.channel.topic)})
+            {"ticket_guild_id": interaction.guild.id, "ticket": int(interaction.channel.topic)})
 
         if e is None:
               await interaction.response.send_message("User has no ticket", ephemeral=True)
 
         else:
-            a = db.collection.find_one({"ticket": int(interaction.channel.topic)})
+            a = db.collection.find_one({"ticket_guild_id": interaction.guild.id, "ticket": int(interaction.channel.topic)})
             db.collection.delete_one(a)
-            embed = discord.Embed(title="Closed", description=f"We hope your problem was fixed, thank you", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm a staff")
+            embed = discord.Embed(title="Closed", description=f"This ticket has been closed", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm a staff")
             await interaction.user.send(embed=embed)
             await interaction.channel.delete()
 
@@ -60,7 +63,7 @@ class Ticket(discord.ui.View):
 
     @discord.ui.button(label="Open Ticket", style=discord.ButtonStyle.green, emoji=f"{TICKET_EMOJI}", custom_id="ticket_view:green")
     async def ticket(self, button, interaction):
-        e = db.collection.find_one({"ticket": interaction.user.id})
+        e = db.collection.find_one({"ticket_guild_id": interaction.guild.id, "ticket": interaction.user.id})
         if e is None:
          overwrites = {
             interaction.guild.me: discord.PermissionOverwrite(read_messages=True),
@@ -70,7 +73,7 @@ class Ticket(discord.ui.View):
          channel = await interaction.guild.create_text_channel(name=f'ticket-{interaction.user.id}', overwrites=overwrites, topic=interaction.user.id)
          embed = discord.Embed(title="Thank you!", description=f"Hello thank you for coming to us!.\nIf you need support please ping a staff.\nIf you have something to ask go ahead.", color=MAIN_COLOR)
          await channel.send(embed=embed, view=Close())
-         tickets = {"ticket": interaction.user.id}
+         tickets = {"ticket_guild_id": interaction.guild.id, "ticket": interaction.user.id}
          db.collection.insert_one(tickets)
 
         else:
