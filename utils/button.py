@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI
 from utils.database import db
-
+import random
 
 class Button(discord.ui.View):
     def __init__(self):
@@ -25,6 +25,7 @@ class Button(discord.ui.View):
 class Verify(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
+        self.bot = discord.Client
 
     @discord.ui.button(label="Verify", style=discord.ButtonStyle.green, emoji=f"{VERIFIED}", custom_id="verify_view:green")
     async def verify(self, button, interaction):
@@ -46,16 +47,26 @@ class Close(discord.ui.View):
     async def close(self, button, interaction):
         e = db.collection.find_one(
             {"ticket_guild_id": interaction.guild.id, "ticket": int(interaction.channel.topic)})
-
         if e is None:
               await interaction.response.send_message("User has no ticket", ephemeral=True)
 
         else:
             a = db.collection.find_one({"ticket_guild_id": interaction.guild.id, "ticket": int(interaction.channel.topic)})
             db.collection.delete_one(a)
-            embed = discord.Embed(title="Closed", description=f"This ticket has been closed", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm a staff")
-            await interaction.user.send(embed=embed)
+            embed = discord.Embed(title="Closed", description=f"We hope we fixed your problem!", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm a staff")
+            member = discord.utils.get(interaction.guild.members, id=int(interaction.channel.topic))
+            await member.send(embed=embed)
             await interaction.channel.delete()
+
+    @discord.ui.button(label="Report", style=discord.ButtonStyle.green, custom_id="report_view:green")
+    async def report(self, button, interaction):
+         embed = discord.Embed(title="Report ticket", description="Please give us screenshots and the users id", color=MAIN_COLOR).set_footer(text="If this was by mistake please let us know", icon_url=interaction.user.avatar.url)
+         await interaction.response.send_message(embed=embed)
+
+    @discord.ui.button(label="Question", style=discord.ButtonStyle.blurple, custom_id="question_view:blurple")
+    async def question(self, button, interaction):
+        embed = discord.Embed(title="Question ticket", description="We will try our best to answer your question", color=MAIN_COLOR).set_footer(text="If this was by mistake please let us know", icon_url=interaction.user.avatar.url)
+        await interaction.response.send_message(embed=embed)
 
 class Ticket(discord.ui.View):
     def __init__(self):
@@ -70,9 +81,9 @@ class Ticket(discord.ui.View):
             interaction.user: discord.PermissionOverwrite(read_messages=True),
             interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False)
         }
-         channel = await interaction.guild.create_text_channel(name=f'ticket-{interaction.user.id}', overwrites=overwrites, topic=interaction.user.id)
-         embed = discord.Embed(title="Thank you!", description=f"Hello thank you for coming to us!.\nIf you need support please ping a staff.\nIf you have something to ask go ahead.", color=MAIN_COLOR)
-         await channel.send(embed=embed, view=Close())
+         channel = await interaction.guild.create_text_channel(name=f'ticket-{random.randint(0,1000)}', overwrites=overwrites, topic=interaction.user.id)
+         embed = discord.Embed(title="Thank you!", description=f">>> Please Close this ticket if you did not mean to open it.\nPlease hit the report button to report a user.\nPlease hit the question button if you have a question.", color=MAIN_COLOR)
+         await channel.send(f"<@{interaction.user.id}>", embed=embed, view=Close())
          tickets = {"ticket_guild_id": interaction.guild.id, "ticket": interaction.user.id}
          db.collection.insert_one(tickets)
 
