@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from config import Config as config
 
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
+bot = commands.AutoShardedBot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
 logging.basicConfig(level=logging.INFO)
 bot.load_extension('jishaku')
 
@@ -23,7 +23,7 @@ for filename in os.listdir('./cogs'):
 async def on_ready():
     logging.info('Bot is ready')
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=f"HI, Welcome"))
+        activity=discord.Activity(type=discord.ActivityType.watching, name=f"The dev team"))
 
 load_dotenv('.env')
 bot.run(os.getenv('DISCORD_BOT_SECRET'))
