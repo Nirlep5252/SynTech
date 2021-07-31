@@ -164,6 +164,38 @@ class moderation(commands.Cog):
             embed = discord.Embed(title="Warnings", description=f"You have {e['warnings']} warnings", color=WARN_COLOR)
             await ctx.send(embed=embed)
 
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def close(self, ctx):
+
+        e = db.collection.find_one(
+            {"ticket_guild_id": ctx.guild.id, "ticket": int(ctx.channel.topic)})
+
+        if e is None:
+            await ctx.send("User has no ticket")
+
+        elif not ctx.channel.topic:
+            ctx.send("No")
+            return
+
+        else:
+            a = db.collection.find_one({"ticket_guild_id": ctx.guild.id, "ticket": int(ctx.channel.topic)})
+            db.collection.delete_one(a)
+            embed = discord.Embed(title="Closed", description=f"We hope we fixed your problem!", color=MAIN_COLOR).set_footer(text="If you think this was a mistake dm a staff", icon_url=self.bot.user.avatar.url)
+            user = self.bot.get_user(int(ctx.channel.topic))
+            await user.send(embed=embed)
+            await ctx.channel.delete()
+
+    @close.error
+    async def close_error(self, ctx: commands.Context, error: commands.CommandError):
+
+        if isinstance(error, commands.ConversionError):
+            message = str(error)
+        else:
+            message = "This is not a ticket channel"
+
+        await ctx.send(message)
+
     @commands.command(aliases=['purge'])
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
