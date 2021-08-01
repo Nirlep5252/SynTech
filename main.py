@@ -7,8 +7,10 @@ from dotenv import load_dotenv
 
 from config import Config as config
 
+prefixes = ['! ', '!', ',']
+
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-bot = commands.AutoShardedBot(command_prefix=commands.when_mentioned_or("!"), intents=intents)
+bot = commands.AutoShardedBot(command_prefix=prefixes, intents=intents)
 logging.basicConfig(level=logging.INFO)
 bot.load_extension('jishaku')
 
