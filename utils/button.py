@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI
+from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI, TICKETS_CATEGORY, STAFF_ROLE
 from utils.database import db
 import random
 
@@ -13,14 +13,6 @@ class Button(discord.ui.View):
             label='Website',
             url=Website_link
         ))
-
-    @discord.ui.button(label='Hit me', style=discord.ButtonStyle.green)
-    async def button(self, button, interaction):
-        await interaction.response.send_message("Get fucked", ephemeral=True)
-
-    @discord.ui.button(label='Don\'t hit me', style=discord.ButtonStyle.green)
-    async def button_button(self, button, interaction):
-        await interaction.response.send_message("Whyyyyyyyyy", ephemeral=True)
 
 class Verify(discord.ui.View):
     def __init__(self):
@@ -58,12 +50,12 @@ class Close(discord.ui.View):
             await member.send(embed=embed)
             await interaction.channel.delete()
 
-    @discord.ui.button(label="Report", style=discord.ButtonStyle.green, custom_id="report_view:green")
+    @discord.ui.button(label="Report", style=discord.ButtonStyle.green, disabled=False, custom_id="report_view:green")
     async def report(self, button, interaction):
          embed = discord.Embed(title="Report ticket", description="Please give us screenshots and the users id", color=MAIN_COLOR).set_footer(text="If this was by mistake please let us know", icon_url=interaction.user.avatar.url)
          await interaction.response.send_message(embed=embed)
 
-    @discord.ui.button(label="Question", style=discord.ButtonStyle.blurple, custom_id="question_view:blurple")
+    @discord.ui.button(label="Question", style=discord.ButtonStyle.blurple, disabled=False, custom_id="question_view:blurple")
     async def question(self, button, interaction):
         embed = discord.Embed(title="Question ticket", description="We will try our best to answer your question", color=MAIN_COLOR).set_footer(text="If this was by mistake please let us know", icon_url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed)
@@ -76,14 +68,16 @@ class Ticket(discord.ui.View):
     async def ticket(self, button, interaction):
         e = db.collection.find_one({"ticket_guild_id": interaction.guild.id, "ticket": interaction.user.id})
         if e is None:
+         tickets_thing = discord.utils.get(interaction.guild.categories, id=TICKETS_CATEGORY)
          overwrites = {
             interaction.guild.me: discord.PermissionOverwrite(read_messages=True),
             interaction.user: discord.PermissionOverwrite(read_messages=True),
+            interaction.guild.get_role(STAFF_ROLE): discord.PermissionOverwrite(read_messages=True),
             interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False)
         }
-         channel = await interaction.guild.create_text_channel(name=f'ticket-{random.randint(0,1000)}', overwrites=overwrites, topic=interaction.user.id)
-         embed = discord.Embed(title="Thank you!", description=f">>> Please Close this ticket if you did not mean to open it.\nPlease hit the report button to report a user.\nPlease hit the question button if you have a question.", color=MAIN_COLOR)
-         await channel.send(f"<@{interaction.user.id}>", embed=embed, view=Close())
+         channel = await interaction.guild.create_text_channel(name=f'ticket-{random.randint(0,1000)}', category=tickets_thing, overwrites=overwrites, topic=interaction.user.id)
+         embed = discord.Embed(title="Thank you!", description=f">>> Please close this ticket if you did not mean to open it.\nPlease hit the report button to report a user.\nPlease hit the question button if you have a question.", color=MAIN_COLOR)
+         await channel.send(f"<@{interaction.user.id}>, I will ping the <@&{STAFF_ROLE}>", embed=embed, view=Close())
          tickets = {"ticket_guild_id": interaction.guild.id, "ticket": interaction.user.id}
          db.collection.insert_one(tickets)
 
