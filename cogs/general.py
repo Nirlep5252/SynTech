@@ -6,8 +6,6 @@ import discord
 from discord.ext import commands
 
 from config import ERROR_COLOR, MAIN_COLOR, VERIFIED
-from utils.button import Button
-from utils.select import Select
 
 class general(commands.Cog):
     def __init__(self, bot):
@@ -16,15 +14,6 @@ class general(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('General is ready')
-
-
-    @commands.command()
-    async def hi(self, ctx):
-       await ctx.send("Hi", view=Select())
-
-    @commands.command()
-    async def button(self, ctx):
-        await ctx.send("Do it", view=Button())
 
     @commands.command()
     async def remindme(self, ctx, time, *, reminder):
