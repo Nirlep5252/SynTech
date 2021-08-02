@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from config import Config as config, VERIFIED, MAIN_COLOR
 from utils.button import Verify, Ticket, Close
+from utils.database import db
 
 
 class owners(commands.Cog):
@@ -56,6 +57,37 @@ class owners(commands.Cog):
         self.bot.load_extension(f'cogs.{extension}')
         logging.info(f'Module {extension} was reloaded')
         await ctx.send(f'Module **{extension}** was reloaded.')
+
+    @commands.command()
+    @commands.check(developer_check)
+    async def blacklist(self, ctx, member: discord.Member):
+        e = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+        
+        if e is None:
+                blacklist = {"_id": ctx.guild.id, "user": member.id}
+                db.collection.insert_one(blacklist)
+                await ctx.send(f"You have blacklised {member.name}")
+
+        else:
+            db.collection.update_one(
+                    filter={"_id": ctx.guild.id},
+                    update={"$set": {"user":  member.id}}
+                )
+            await ctx.send(f"You have blacklised {member.name}")
+
+    @commands.command()
+    @commands.check(developer_check)
+    async def unblacklist(self, ctx, member: discord.Member):
+        e = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+        
+        if e is None:
+            await ctx.send(f"{member.name} is not blacklised")
+
+        else:
+            a = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+            db.collection.delete_one(a)
+            await ctx.send(f'{member.name} Has been unblacklisted')
+       
 
 def setup(bot):
     bot.add_cog(owners(bot=bot))

@@ -42,7 +42,7 @@ class moderation(commands.Cog):
         await ctx.send(f'{channel.mention} is now unlocked.')
 
     @commands.command()
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         if reason == None:
@@ -127,7 +127,7 @@ class moderation(commands.Cog):
             await ctx.send(f'{member.name} Has been cleared')
 
     @commands.command()
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
     async def rwarn(self, ctx, member: discord.Member):
 
@@ -206,6 +206,3 @@ class moderation(commands.Cog):
 
 def setup(bot):
     bot.add_cog(moderation(bot=bot))
-
-
-
