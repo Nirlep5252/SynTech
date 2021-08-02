@@ -4,6 +4,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from utils.database import db
 
 from config import Config as config
 
@@ -26,6 +27,17 @@ async def on_ready():
     logging.info('Bot is ready')
     await bot.change_presence(
         activity=discord.Activity(type=discord.ActivityType.watching, name=f"The dev team"))
+
+@bot.event
+async def on_message(message):
+    e = db.collection.find_one({"_id": message.guild.id, "user": message.author.id})
+
+    if e is None:
+       await bot.process_commands(message)
+
+    else:
+       return
+    
 
 load_dotenv('.env')
 bot.run(os.getenv('DISCORD_BOT_SECRET'))
