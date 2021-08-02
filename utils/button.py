@@ -84,3 +84,13 @@ class Ticket(discord.ui.View):
         else:
             await interaction.response.send_message("You have a ticket open", ephemeral=True)
 
+class Student(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="Join", style=discord.ButtonStyle.blurple, custom_id="student_view:blurple")
+    async def student(self, button, interaction):
+        role = interaction.guild.get_role(871154724269854740)
+        await interaction.user.add_roles(role)
+        embed = discord.Embed(title="Welcome", description="Welcome to the student program!", color=MAIN_COLOR)
+        await interaction.user.send(embed=embed)
