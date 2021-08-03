@@ -75,11 +75,7 @@ class owners(commands.Cog):
                 await ctx.send(f"You have blacklisted {member.name}")
 
         else:
-            db.collection.update_one(
-                    filter={"user": member.id},
-                    update={"$set": {"user":  member.id}}
-                )
-            await ctx.send(f"You have blacklisted {member.name}")
+            await ctx.send(f"{member.name} is already blacklisted")
 
     @blacklist.command()
     @commands.check(developer_check)
