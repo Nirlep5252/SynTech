@@ -30,7 +30,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    e = db.collection.find_one({"_id": message.guild.id, "user": message.author.id})
+    e = db.collection.find_one({"user": message.author.id})
 
     if e is None:
        await bot.process_commands(message)

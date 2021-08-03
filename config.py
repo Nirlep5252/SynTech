@@ -1,9 +1,6 @@
 import discord
 
 Website_link = 'https://github.com/Synterra-Technologies'
-Whatever_we_put = ''
-
-#Start of colors
 
 MAIN_COLOR = discord.Color.green()
 ERROR_COLOR = discord.Color.red()
