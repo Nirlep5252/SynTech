@@ -6,12 +6,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from utils.database import db
 
-from PIL import Image
-from io import BytesIO
-from PIL import ImageFont
-from PIL import ImageDraw
-from PIL import ImageOps
-
 from config import Config as config
 
 prefixes = ['! ', '!', ',']
