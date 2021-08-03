@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 import logging
 import os
 
@@ -38,6 +39,15 @@ class info(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command()
+    @commands.cooldown(1, 2, commands.BucketType.member)
+    async def ping(self, ctx):
+       before = time.monotonic()
+       embed = discord.Embed(title="Ping!", description=f'Ping', color=MAIN_COLOR)
+       message = await ctx.send(embed=embed)
+       ping = (time.monotonic() - before) * 1000
+       ping_embed = discord.Embed(title="Pong!", description=f'Api Ping  !  `{round(self.bot.latency * 1000)}` ms\nBot Ping ! `{int(ping)}` ms', color=MAIN_COLOR)
+       await message.edit(embed=ping_embed)
 
     @commands.command(aliases=["botinfo", "stats", "status"])
     async def about(self, ctx):

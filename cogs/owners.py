@@ -58,33 +58,39 @@ class owners(commands.Cog):
         logging.info(f'Module {extension} was reloaded')
         await ctx.send(f'Module **{extension}** was reloaded.')
 
-    @commands.command()
+    @commands.group(invoke_without_command=True)
     @commands.check(developer_check)
-    async def blacklist(self, ctx, member: discord.Member):
-        e = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+    async def blacklist(self, ctx):
+        embed = discord.Embed(title="Blacklist Help", description="!blacklist add {user}\n!blacklist remove {user}", color=MAIN_COLOR)
+        await ctx.send(embed=embed)
+
+    @blacklist.command()
+    @commands.check(developer_check)
+    async def add(self, ctx, member: discord.Member):
+        e = db.collection.find_one({"user": member.id})
         
         if e is None:
-                blacklist = {"_id": ctx.guild.id, "user": member.id}
+                blacklist = {"user": member.id}
                 db.collection.insert_one(blacklist)
-                await ctx.send(f"You have blacklised {member.name}")
+                await ctx.send(f"You have blacklisted {member.name}")
 
         else:
             db.collection.update_one(
-                    filter={"_id": ctx.guild.id},
+                    filter={"user": member.id},
                     update={"$set": {"user":  member.id}}
                 )
-            await ctx.send(f"You have blacklised {member.name}")
+            await ctx.send(f"You have blacklisted {member.name}")
 
-    @commands.command()
+    @blacklist.command()
     @commands.check(developer_check)
-    async def unblacklist(self, ctx, member: discord.Member):
-        e = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+    async def remove(self, ctx, member: discord.Member):
+        e = db.collection.find_one({"user": member.id})
         
         if e is None:
-            await ctx.send(f"{member.name} is not blacklised")
+            await ctx.send(f"{member.name} is not blacklisted")
 
         else:
-            a = db.collection.find_one({"_id": ctx.guild.id, "user": member.id})
+            a = db.collection.find_one({"user": member.id})
             db.collection.delete_one(a)
             await ctx.send(f'{member.name} Has been unblacklisted')
        
