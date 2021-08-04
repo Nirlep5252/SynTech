@@ -6,7 +6,9 @@ import os
 import discord
 import psutil
 from discord.ext import commands, tasks
-from config import MAIN_COLOR
+from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES
+from discord import Webhook
+import aiohttp
 
 class info(commands.Cog):
     def __init__(self, bot):

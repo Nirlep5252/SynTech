@@ -7,8 +7,10 @@ import discord
 from discord.ext import commands
 
 from utils.database import db
-from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL
+from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_WEBHOOK_2, GLOBAL_CHAT_CHANNEL, GLOBAL_CHAT_CHANNEL_2, PREFIXES
 from config import Config as config
+from discord import Webhook
+import aiohttp
 
 class moderation(commands.Cog):
     def __init__(self, bot):
@@ -22,6 +24,39 @@ class moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('Moderation is ready')
+
+    @commands.Cog.listener()
+    async def on_command(self, ctx):
+        channel = self.bot.get_channel(LOG_CHANNEL)
+        embed = discord.Embed(title="Command Ran", description=f"Command Name: `{ctx.message.content}`\nRan By: `{ctx.author.name}`", timestamp=discord.utils.utcnow(), color=MAIN_COLOR)
+        await channel.send(embed=embed)
+
+    
+    @commands.Cog.listener()
+    async def on_message(self, message):
+      if message.author.bot:
+          return
+
+      elif f"!" in message.content:
+           return
+
+      elif message.channel.id == GLOBAL_CHAT_CHANNEL:
+        async with aiohttp.ClientSession() as session:
+             webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK, session=session)
+             await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
+
+      elif message.channel.id == GLOBAL_CHAT_CHANNEL_2:
+        async with aiohttp.ClientSession() as session:
+             webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK_2, session=session)
+             await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
+
+    
+    @commands.command()
+    async def test(self, ctx):
+        webhooks = await ctx.channel.webhooks()
+        webhook = discord.utils.get(webhooks, name="Global Chat", user=self.bot.user)
+        if webhook is None:
+          webhook = await ctx.channel.create_webhook(name="Global Chat")
 
     @commands.command()
     @commands.has_permissions(manage_channels=True)
