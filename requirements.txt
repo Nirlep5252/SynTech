@@ -10,3 +10,4 @@ kitsu-wrapper
 timeago
 psutil
 youtube_dl
+pynacl
