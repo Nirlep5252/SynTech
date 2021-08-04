@@ -6,12 +6,12 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from utils.database import db
 
+from config import PREFIXES
+
 from config import Config as config
 
-prefixes = ['! ', '!', ',']
-
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-bot = commands.AutoShardedBot(command_prefix=prefixes, intents=intents)
+bot = commands.AutoShardedBot(command_prefix=PREFIXES, intents=intents)
 logging.basicConfig(level=logging.INFO)
 bot.load_extension('jishaku')
 
