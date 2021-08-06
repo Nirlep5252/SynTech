@@ -24,9 +24,11 @@ for filename in os.listdir('./cogs'):
 
 @bot.event
 async def on_ready():
-    logging.info('Bot is ready')
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=f"The dev team"))
+    logging.info(' __________________________________________________ ')
+    logging.info('|                                                  |')
+    logging.info('|                 Bot has Started                  |')
+    logging.info('+__________________________________________________+')
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"The dev team"))
 
 @bot.event
 async def on_message(message):
