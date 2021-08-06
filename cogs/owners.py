@@ -89,7 +89,6 @@ class owners(commands.Cog):
             a = db.collection.find_one({"user": member.id})
             db.collection.delete_one(a)
             await ctx.send(f'{member.name} Has been unblacklisted')
-       
 
 def setup(bot):
     bot.add_cog(owners(bot=bot))

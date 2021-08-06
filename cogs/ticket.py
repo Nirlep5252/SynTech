@@ -5,11 +5,13 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import ERROR_COLOR, MAIN_COLOR, VERIFIED
+from config import ERROR_COLOR, MAIN_COLOR, VERIFIED, STAFF_ROLE, TICKETS_CATEGORY, TICKET_EMOJI
 from utils.database import db
+from utils.button import Close
+import random
 
 
-class ticket_cog(commands.Cog):
+class tickets(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -51,6 +53,26 @@ class ticket_cog(commands.Cog):
         else:
             await ctx.channel.set_permissions(member, send_messages=True, view_channel=True)
             await ctx.send(f"I have added {member.name}")
+
+    @commands.command()
+    async def new(self, ctx):
+        e = db.collection.find_one({"ticket_guild_id": ctx.guild.id, "ticket": ctx.author.id})
+        if e is None:
+         tickets_thing = discord.utils.get(ctx.guild.categories, id=TICKETS_CATEGORY)
+         overwrites = {
+            ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
+            ctx.author: discord.PermissionOverwrite(read_messages=True),
+            ctx.guild.get_role(STAFF_ROLE): discord.PermissionOverwrite(read_messages=True),
+            ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False)
+        }
+         channel = await ctx.guild.create_text_channel(name=f'ticket-{random.randint(0,1000)}', category=tickets_thing, overwrites=overwrites, topic=ctx.author.id)
+         embed = discord.Embed(title="Thank you!", description=f">>> Please close this ticket if you did not mean to open it.\nPlease hit the report button to report a user.\nPlease hit the question button if you have a question.", color=MAIN_COLOR)
+         await channel.send(f"<@{ctx.author.id}>, I will ping the <@&{STAFF_ROLE}>", embed=embed, view=Close())
+         tickets = {"ticket_guild_id": ctx.guild.id, "ticket": ctx.author.id}
+         db.collection.insert_one(tickets)
+
+        else:
+            await ctx.send("You have a ticket open")
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -96,4 +118,4 @@ class ticket_cog(commands.Cog):
         await ctx.send(message)
 
 def setup(bot):
-    bot.add_cog(ticket_cog(bot=bot))
+    bot.add_cog(tickets(bot=bot))

@@ -6,7 +6,7 @@ import os
 import discord
 import psutil
 from discord.ext import commands, tasks
-from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES
+from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES, DEVELOPER
 from discord import Webhook
 import aiohttp
 
@@ -51,18 +51,16 @@ class info(commands.Cog):
        ping_embed = discord.Embed(title="Pong!", description=f'Api Ping  !  `{round(self.bot.latency * 1000)}` ms\nBot Ping ! `{int(ping)}` ms', color=MAIN_COLOR)
        await message.edit(embed=ping_embed)
 
-    @commands.command(aliases=["botinfo", "stats", "status"])
-    async def about(self, ctx):
+    @commands.command()
+    async def botinfo(self, ctx):
         ramUsage = self.process.memory_full_info().rss / 1024**2
-        avgmembers = sum(g.member_count for g in self.bot.guilds) / len(self.bot.guilds)
-
-        embed = discord.Embed(color=discord.Color.red())
-        embed.set_thumbnail(url=ctx.bot.user.avatar.url)
-        embed.add_field(name="Library", value="discord.py", inline=False)
-        embed.add_field(name="Servers", value=f"{len(ctx.bot.guilds)} ( avg: {avgmembers:,.2f} users/server )", inline=False)
-        embed.add_field(name="Commands loaded", value=len([x.name for x in self.bot.commands]), inline=False)
+        embed = discord.Embed(title="Botinfo", description="", color=MAIN_COLOR)
+        embed.set_thumbnail(url=self.bot.user.avatar.url)
+        embed.add_field(name="Library", value=f"discord.py {discord.__version__}", inline=False)
+        embed.add_field(name="Developer", value=f"{DEVELOPER}")
+        embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds)} Servers", inline=False)
+        embed.add_field(name="Commands loaded", value=f"{len(self.bot.commands)} Commands", inline=False)
         embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=False)
-
         await ctx.send(embed=embed)
 
 def setup(bot):

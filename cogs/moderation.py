@@ -50,14 +50,6 @@ class moderation(commands.Cog):
              webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK_2, session=session)
              await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
 
-    
-    @commands.command()
-    async def test(self, ctx):
-        webhooks = await ctx.channel.webhooks()
-        webhook = discord.utils.get(webhooks, name="Global Chat", user=self.bot.user)
-        if webhook is None:
-          webhook = await ctx.channel.create_webhook(name="Global Chat")
-
     @commands.command()
     @commands.has_permissions(manage_channels=True)
     @commands.guild_only()
