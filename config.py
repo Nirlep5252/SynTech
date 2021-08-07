@@ -1,12 +1,15 @@
 import discord
 from dotenv import load_dotenv
 import os
+from discord.ext import commands
 
 Website_link = 'https://github.com/Synterra-Technologies'
 
 MAIN_COLOR = discord.Color.green()
 ERROR_COLOR = discord.Color.red()
 WARN_COLOR = discord.Color.orange()
+NSFW_COLOR = discord.Color.purple()
+FUN_COLOR = discord.Color.blue()
 DEVELOPER = 'Blue.#1270'
 PREFIXES = ['!']
 VERIFIED = '<a:check:870155042659921941>'

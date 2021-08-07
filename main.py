@@ -11,7 +11,7 @@ from config import PREFIXES
 from config import Config as config
 
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-bot = commands.AutoShardedBot(command_prefix=PREFIXES, intents=intents)
+bot = commands.AutoShardedBot(command_prefix=PREFIXES, intents=intents, case_insensitive=True)
 logging.basicConfig(level=logging.INFO)
 bot.load_extension('jishaku')
 
