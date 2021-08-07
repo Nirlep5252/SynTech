@@ -11,7 +11,7 @@ from utils.button import Close
 import random
 
 
-class tickets(commands.Cog):
+class tickets(commands.Cog, description="You can set up/use tickets here for support team"):
     def __init__(self, bot):
         self.bot = bot
 

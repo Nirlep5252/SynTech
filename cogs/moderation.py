@@ -8,17 +8,12 @@ from discord.ext import commands
 
 from utils.database import db
 from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_WEBHOOK_2, GLOBAL_CHAT_CHANNEL, GLOBAL_CHAT_CHANNEL_2, PREFIXES
-from config import Config as config
 from discord import Webhook
 import aiohttp
 
-class moderation(commands.Cog):
+class moderation(commands.Cog, description="This is the cog that allows you to get rid of bad boys"):
     def __init__(self, bot):
         self.bot = bot
-        self.developers = config.DEVELOPERS
-
-    async def developer_check(ctx):
-       return ctx.author.id in config.DEVELOPERS
 
 
     @commands.Cog.listener()
@@ -28,7 +23,7 @@ class moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         channel = self.bot.get_channel(LOG_CHANNEL)
-        embed = discord.Embed(title="Command Ran", description=f"Command Name: `{ctx.message.content}`\nRan By: `{ctx.author.name}`", timestamp=discord.utils.utcnow(), color=MAIN_COLOR)
+        embed = discord.Embed(title="Command Used!", description=f"**Command:**\n```{ctx.message.content}```\n**Guild:**\n```{ctx.guild.name} - {ctx.guild.id}```\n**User:**\n```{ctx.author.name} - {ctx.author.id}```", timestamp=discord.utils.utcnow(), color=MAIN_COLOR).set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar.url)
         await channel.send(embed=embed)
 
     

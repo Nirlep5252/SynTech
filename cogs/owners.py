@@ -8,7 +8,7 @@ from utils.button import Verify, Ticket, Close
 from utils.database import db
 
 
-class owners(commands.Cog):
+class owners(commands.Cog, description="No go away developers only"):
     def __init__(self, bot):
         self.bot = bot
         self.developers = config.DEVELOPERS

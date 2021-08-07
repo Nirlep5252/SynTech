@@ -10,7 +10,7 @@ from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFI
 from discord import Webhook
 import aiohttp
 
-class info(commands.Cog):
+class info(commands.Cog, description="Info commands for the bot and your server"):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
