@@ -148,7 +148,7 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
             db.collection.delete_one(a)
             await ctx.send(f'{member.name} Has been cleared')
 
-    @commands.command()
+    @commands.command(aliases=["removewarns"])
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
     async def rwarn(self, ctx, member: discord.Member):

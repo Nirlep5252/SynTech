@@ -30,7 +30,6 @@ class EpicBotHelpSelect(discord.ui.Select):
         await i.response.send_message(embed=await get_cog_help(
             self.values[0], self.ctx
         ), ephemeral=True)
-
 class MyHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping):
@@ -44,14 +43,13 @@ class MyHelp(commands.HelpCommand):
          if cog is not None and cog.qualified_name.lower() == cog.qualified_name:
               value = f', {help_reply.clean_prefix}'.join([cmd.name for cmd in cmds])
               if len(cmds) != 0:
-               embed.add_field(
+                embed.add_field(
                     name=f"{cog.qualified_name.title()}",
                     value=f"{help_reply.clean_prefix}{value}",
                     inline=False
                     )
               else:
                 pass
-
 
         await help_reply.send(embed=embed)
 

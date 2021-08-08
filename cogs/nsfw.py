@@ -3,6 +3,7 @@ import logging
 import aiohttp
 import discord
 from discord.ext import commands
+from utils.database import db
 
 import random
 

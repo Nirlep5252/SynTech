@@ -6,7 +6,7 @@ import os
 import discord
 import psutil
 from discord.ext import commands, tasks
-from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES, DEVELOPER
+from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES, DEVELOPER, VERSION
 from discord import Webhook
 import aiohttp
 
@@ -57,10 +57,16 @@ class info(commands.Cog, description="Info commands for the bot and your server"
         embed = discord.Embed(title="Botinfo", description="", color=MAIN_COLOR)
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.add_field(name="Library", value=f"discord.py {discord.__version__}", inline=False)
+        embed.add_field(name="Bot Version", value=VERSION, inline=False)
         embed.add_field(name="Developer", value=f"{DEVELOPER}")
         embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds)} Servers", inline=False)
         embed.add_field(name="Commands loaded", value=f"{len(self.bot.commands)} Commands", inline=False)
         embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def github(self, ctx):
+        embed = discord.Embed(title="Github", description="Give me a star on **[Github](https://github.com/Synterra-Technologies/SynTech)**", color=MAIN_COLOR)
         await ctx.send(embed=embed)
 
 def setup(bot):
