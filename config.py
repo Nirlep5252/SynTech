@@ -21,9 +21,23 @@ PREFIXES = ['!']
 VERIFIED = '<a:check:870155042659921941>'
 TICKET_EMOJI = '🎟️'
 CLOSE_EMOJI = '🛑'
+MONEY_EMOJI = '<:1money:874004784301096961>'
 LOG_CHANNEL = 869369735886823455
 TICKETS_CATEGORY = 871207377750347796
 STAFF_ROLE = 870410239806165023
+
+#Cog stuff
+
+EMOJIS_FOR_COGS = {
+    'nsfw': '🔞',
+    'images': '📸',
+    'moderation': '🛠️',
+    'general': '🌍',
+    'tickets': '🎟️',
+    'info': 'ℹ️',
+    'owners': '⛔',
+    'money': '<:1money:874004784301096961>'
+}
 
 #Global chat config
 
