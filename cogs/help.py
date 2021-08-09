@@ -1,5 +1,5 @@
 import discord
-from config import MAIN_COLOR, Website_link
+from config import MAIN_COLOR, Website_link, EMOJIS_FOR_COGS
 from discord.ext import commands
 import logging
 
@@ -43,8 +43,11 @@ class MyHelp(commands.HelpCommand):
          if cog is not None and cog.qualified_name.lower() == cog.qualified_name:
               value = f', {help_reply.clean_prefix}'.join([cmd.name for cmd in cmds])
               if len(cmds) != 0:
-                embed.add_field(
-                    name=f"{cog.qualified_name.title()}",
+                if cog.qualified_name == 'nsfw' and not self.context.channel.is_nsfw():
+                     pass
+                else:
+                 embed.add_field(
+                    name=f"{EMOJIS_FOR_COGS[cog.qualified_name]} {cog.qualified_name.title()}",
                     value=f"{help_reply.clean_prefix}{value}",
                     inline=False
                     )
