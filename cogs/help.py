@@ -18,20 +18,6 @@ async def get_cog_help(cog, context):
 
     return embed
 
-class EpicBotHelpSelect(discord.ui.Select):
-    def __init__(self, placeholder, options, ctx):
-        super().__init__(
-            placeholder=placeholder,
-            options=options
-        )
-        self.ctx = ctx
-
-    async def callback(self, i):
-        await i.response.send_message(embed=await get_cog_help(
-            self.values[0], self.ctx
-        ), ephemeral=True)
-class MyHelp(commands.HelpCommand):
-
     async def send_bot_help(self, mapping):
         help_reply = self.context
         embed = discord.Embed(title="help command", color=MAIN_COLOR)
@@ -47,7 +33,7 @@ class MyHelp(commands.HelpCommand):
                      pass
                 else:
                  embed.add_field(
-                    name=f"{EMOJIS_FOR_COGS[cog.qualified_name]} {cog.qualified_name.title()}",
+                    name=f"{EMOJIS_FOR_COGS[cog.qualified_name]} {cog.qualified_name.title()} [ `{len(cmds)}` ]",
                     value=f"{help_reply.clean_prefix}{value}",
                     inline=False
                     )
