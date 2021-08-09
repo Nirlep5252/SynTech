@@ -1,6 +1,5 @@
 import discord
 
-
 class Select(discord.ui.View):
     def __init__(self):
         super().__init__()
@@ -12,4 +11,4 @@ class Select(discord.ui.View):
         if select.values[0] == "no":
             await interaction.response.send_message(f"You picked1 {select.values[0]}", ephemeral=True)
         if select.values[0] == "maybe":
-            await interaction.response.send_message(f"You picked2 {select.values[0]}", ephemeral=True) #wip cuz idk what to do with it 
+            await interaction.response.send_message(f"You picked2 {select.values[0]}", ephemeral=True)
