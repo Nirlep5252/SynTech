@@ -28,7 +28,7 @@ async def on_ready():
     logging.info('|                                                  |')
     logging.info('|                 Bot has Started                  |')
     logging.info('+__________________________________________________+')
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"The dev team"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"!help"))
 
 @bot.event
 async def on_message(message):
