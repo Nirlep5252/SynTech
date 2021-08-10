@@ -18,6 +18,7 @@ async def get_cog_help(cog, context):
 
     return embed
 
+class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         help_reply = self.context
         embed = discord.Embed(title="help command", color=MAIN_COLOR)
@@ -71,4 +72,4 @@ class help_command(commands.Cog):
         logging.info('Help is ready')
 
 def setup(bot):
-    bot.add_cog(help_command(bot=bot))
+    bot.add_cog(help_command(bot=bot))  

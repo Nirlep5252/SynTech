@@ -2,6 +2,7 @@ from datetime import datetime
 import time
 import logging
 import os
+import platform
 
 import discord
 import psutil
@@ -57,8 +58,9 @@ class info(commands.Cog, description="Info commands for the bot and your server"
         embed = discord.Embed(title="Botinfo", description="", color=MAIN_COLOR)
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.add_field(name="Library", value=f"discord.py {discord.__version__}", inline=False)
-        embed.add_field(name="Bot Version", value=VERSION, inline=False)
-        embed.add_field(name="Developer", value=f"{DEVELOPER}")
+        embed.add_field(name="Operating System", value=f"{platform.system()} {platform.release()}")
+        embed.add_field(name="Bot Version", value=f"v{VERSION}", inline=False)
+        embed.add_field(name="Developer", value=f"{DEVELOPER}", inline=False)
         embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds)} Servers", inline=False)
         embed.add_field(name="Commands loaded", value=f"{len(self.bot.commands)} Commands", inline=False)
         embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=False)

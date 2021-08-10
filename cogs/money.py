@@ -70,19 +70,25 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send("You don't have enough money")
 
     @commands.command()
+    @commands.cooldown(1, 18000, commands.BucketType.member)
     async def rob(self, ctx, member: discord.Member=None):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})
-        number = random.randint(1,20)
+        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})       
+        number = 20
         if e['money'] >= number:
-          db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": member.id}, update={"$set": {"money":  e['money'] - number}})
+          db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": member.id}, update={"$set": {"money": e['money'] - number, "bank": e['bank']}})
           await ctx.send(f"You took {number}{MONEY_EMOJI} from {member.name}")
+          db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": a['money'] + number, "bank": a['bank']}})
              
         elif e is None:
          embed = discord.Embed(title="Rob", description=f"{member.name} has no money to take", color=MAIN_COLOR)
          await ctx.send(embed=embed)
 
+        elif a is None:
+            await ctx.send("Please open a account by running `!work`")
+
         else:
-            await ctx.send("{member.name} does not have much money so lets leave them")
+            await ctx.send(f"{member.name} does not have much money so lets leave them")
 
     @commands.command()
     @commands.cooldown(1, 900, commands.BucketType.member)
