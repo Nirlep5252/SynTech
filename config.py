@@ -1,7 +1,6 @@
 import discord
 from dotenv import load_dotenv
 import os
-from discord.ext import commands
 
 Website_link = 'https://github.com/Synterra-Technologies'
 
@@ -18,11 +17,18 @@ FUN_COLOR = discord.Color.blue()
 DEVELOPER = 'Blue.#1270'
 VERSION = "1.3"
 PREFIXES = ['!']
+
+#Emojis
+
 VERIFIED = '<a:check:870155042659921941>'
 TICKET_EMOJI = '🎟️'
 CLOSE_EMOJI = '🛑'
 MONEY_EMOJI = '<:1money:874004784301096961>'
+
+#Channels & Roles
+
 LOG_CHANNEL = 869369735886823455
+ERROR_CHANNEL = 874788663651889162
 TICKETS_CATEGORY = 871207377750347796
 STAFF_ROLE = 870410239806165023
 
