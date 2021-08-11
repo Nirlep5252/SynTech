@@ -1,6 +1,6 @@
 import logging
 import discord
-from config import ERROR_COLOR, LOG_CHANNEL
+from config import ERROR_COLOR, ERROR_CHANNEL
 
 from discord.ext import commands
 from discord.ext.commands import MissingPermissions, CheckFailure, CommandNotFound, MissingRequiredArgument, BadArgument
@@ -40,8 +40,8 @@ class ErrorHandling(commands.Cog, name="on command error"):
             embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
             await ctx.send(embed=embed)
         else:
-            channel = self.bot.get_channel(LOG_CHANNEL)
-            embed = discord.Embed(title="Error!", description=f"{error}")
+            channel = self.bot.get_channel(ERROR_CHANNEL)
+            embed = discord.Embed(title="Error!", description=f"{error}", color=ERROR_COLOR)
             await channel.send(embed=embed)
             logging.info(error)
 

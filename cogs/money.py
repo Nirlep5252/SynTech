@@ -44,6 +44,7 @@ class money(commands.Cog, description="Make money then sleep"):
     @commands.command()
     async def transfer(self, ctx, money_stuff: int):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
+        all = 0
         if e['money'] >= money_stuff:
          db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money":  e['money'] - money_stuff, "bank": e['bank'] + money_stuff}})
          embed = discord.Embed(title="Transfer", description=f"{money_stuff}{MONEY_EMOJI} to your bank account", color=MAIN_COLOR)
@@ -51,6 +52,11 @@ class money(commands.Cog, description="Make money then sleep"):
 
         elif e is None:
             ctx.send("No money lol")
+
+        elif money_stuff == all:
+                db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money":  e['money'] -e['money'], "bank": e['bank'] + e['money']}})
+                embed = discord.Embed(title="Transfer", description=f"{money_stuff}{MONEY_EMOJI} to your bank account", color=MAIN_COLOR)
+                await ctx.send(embed=embed)
 
         else:
             await ctx.send("You don't have enough money")
@@ -72,22 +78,27 @@ class money(commands.Cog, description="Make money then sleep"):
     @commands.command()
     @commands.cooldown(1, 18000, commands.BucketType.member)
     async def rob(self, ctx, member: discord.Member=None):
-        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})
-        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})       
+        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id}) 
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})      
         number = 20
+
+        if a is None:
+            ctx.command.reset_cooldown(ctx)
+            await ctx.send("Please open a account by running `!work`")
+            return
+
         if e['money'] >= number:
           db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": member.id}, update={"$set": {"money": e['money'] - number, "bank": e['bank']}})
           await ctx.send(f"You took {number}{MONEY_EMOJI} from {member.name}")
           db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": a['money'] + number, "bank": a['bank']}})
              
         elif e is None:
+         ctx.command.reset_cooldown(ctx)
          embed = discord.Embed(title="Rob", description=f"{member.name} has no money to take", color=MAIN_COLOR)
          await ctx.send(embed=embed)
 
-        elif a is None:
-            await ctx.send("Please open a account by running `!work`")
-
         else:
+            ctx.command.reset_cooldown(ctx)
             await ctx.send(f"{member.name} does not have much money so lets leave them")
 
     @commands.command()
@@ -141,7 +152,7 @@ class money(commands.Cog, description="Make money then sleep"):
 
     @commands.group(invoke_without_command=True)
     async def buy(self, ctx):
-        await ctx.send("this is WIP")    
+        await ctx.send("this is WIP")
 
 def setup(bot):
     bot.add_cog(money(bot=bot))

@@ -83,7 +83,6 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         e = db.collection.find_one({"_guild": ctx.guild.id, "_id": member.id})
 
         if e is None:
-                warns = {"_guild": ctx.guild.id, "_id": member.id, "warnings": 1, "reasons": [reason]}
                 db.collection.insert_one({"_guild": ctx.guild.id, "_id": member.id, "warnings": {"1": reason}})
                 embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
                 warning = discord.Embed(title="Warned", description=f"You have warned {member.name} for {reason}", color=MAIN_COLOR)
@@ -92,7 +91,7 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
 
         else:
             warnings = e['warnings']
-            warnings.update({f"{max([int(i) for i in warnings]) + 1}": reason})
+            warnings.update({f"{1 if len(warnings) == 0 else max([int(i) for i in warnings]) + 1}": reason})
             db.collection.update_one(filter={"_id": member.id, "_guild": ctx.guild.id}, update={"$set": {"warnings": warnings}})
             embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
             warning_added = discord.Embed(title="Warned Added", description=f"You warned {member.name} for {reason}", color=MAIN_COLOR)
@@ -125,10 +124,6 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         if e is None:
               await ctx.send(f"{member.name} has no warnings")
 
-        elif e['warnings'] == 0:
-            await ctx.send(f"{member.name} has no warnings")
-            return
-
         else:
             warnings = e['warnings']
             warnings.pop(str(number))
@@ -148,15 +143,10 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
                embed = discord.Embed(title="Warnings", description=f"{member.name} have no warnings", color=MAIN_COLOR)
                await ctx.send(embed=embed)
 
-        elif e['warnings'] == 0:
-            embed = discord.Embed(title="Warnings", description=f"{member.name} have no warnings", color=MAIN_COLOR)
-            await ctx.send(embed=embed)
-            return
-
         else:
             warnings = e['warnings']
             sexy = ',\n'.join([f"`{number}.` - {warnings[number]}" for number in warnings])
-            embed = discord.Embed(title=f"Warnings For {member.name}", description=f"{sexy}", color=WARN_COLOR)
+            embed = discord.Embed(title=f"Warn(s) for {member.name}", description=f"{sexy}", timestamp=discord.utils.utcnow(), color=WARN_COLOR).set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar.url)
             await ctx.send(embed=embed)
 
     @commands.command(aliases=['purge'])
