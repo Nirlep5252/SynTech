@@ -10,3 +10,4 @@ client = pymongo.MongoClient(
 db = client['cluster0']
 
 collection = db["cluster0"]
+prefix_collection = db["prefix"]

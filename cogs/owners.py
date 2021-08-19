@@ -3,15 +3,15 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import VERIFIED, MAIN_COLOR, EMOJIS_FOR_COGS
-from utils.button import Close, Pages, Ticket, Verify
+from config import VERIFIED, MAIN_COLOR
+from utils.button import Close, Ticket, Verify
 from utils.database import db
 import asyncio
 import sys
-from utils.embeds import custom_embed
-from animec import *
+from animec import Aninews
 
-news = Aninews() 
+news = Aninews()
+
 
 class owners(commands.Cog, description="No go away developers only"):
     def __init__(self, bot):
@@ -19,21 +19,21 @@ class owners(commands.Cog, description="No go away developers only"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-            self.bot.add_view(Verify())
-            self.bot.add_view(Ticket())
-            self.bot.add_view(Close())
-            logging.info("Owners is ready")
+        self.bot.add_view(Verify())
+        self.bot.add_view(Ticket())
+        self.bot.add_view(Close())
+        logging.info("Owners is ready")
 
     @commands.command()
     @commands.is_owner()
     async def verify(self, ctx):
         embed = discord.Embed(title="Verification", description=f"Please hit the button with the {VERIFIED} emoji to be allowed into the server!", color=MAIN_COLOR).set_footer(text="If you do not get the member or verified role please dm a staff", icon_url=self.bot.user.avatar.url)
-        message = await ctx.send(embed=embed, view=Verify())
-        #await message.add_reaction(VERIFIED)
+        await ctx.send(embed=embed, view=Verify())
+        # await message.add_reaction(VERIFIED)
 
     @commands.command()
     @commands.is_owner()
-    async def ticket(self,ctx):
+    async def ticket(self, ctx):
         embed = discord.Embed(title="Support", description="Please only make a ticket if you need support or have something to ask", color=MAIN_COLOR).set_footer(text="If you have any problems making a ticket please dm a staff", icon_url=self.bot.user.avatar.url)
         await ctx.send(embed=embed, view=Ticket())
 
@@ -69,11 +69,11 @@ class owners(commands.Cog, description="No go away developers only"):
     @commands.is_owner()
     async def add(self, ctx, member: discord.Member):
         e = db.collection.find_one({"user": member.id})
-        
+
         if e is None:
-                blacklist = {"user": member.id}
-                db.collection.insert_one(blacklist)
-                await ctx.send(f"You have blacklisted {member.name}")
+            blacklist = {"user": member.id}
+            db.collection.insert_one(blacklist)
+            await ctx.send(f"You have blacklisted {member.name}")
 
         else:
             await ctx.send(f"{member.name} is already blacklisted")
@@ -82,7 +82,7 @@ class owners(commands.Cog, description="No go away developers only"):
     @commands.is_owner()
     async def remove(self, ctx, member: discord.Member):
         e = db.collection.find_one({"user": member.id})
-        
+
         if e is None:
             await ctx.send(f"{member.name} is not blacklisted")
 
@@ -104,6 +104,7 @@ class owners(commands.Cog, description="No go away developers only"):
         await ctx.send("Done")
         await asyncio.sleep(1)
         await sys.exit()
+
 
 def setup(bot):
     bot.add_cog(owners(bot=bot))

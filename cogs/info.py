@@ -1,4 +1,3 @@
-from datetime import datetime
 import time
 import logging
 import os
@@ -6,10 +5,9 @@ import platform
 
 import discord
 import psutil
-from discord.ext import commands, tasks
-from config import MAIN_COLOR, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_CHANNEL_2, PREFIXES, DEVELOPER, VERSION
-from discord import Webhook
-import aiohttp
+from discord.ext import commands
+from config import MAIN_COLOR, DEVELOPER, VERSION
+
 
 class info(commands.Cog, description="Info commands for the bot and your server"):
     def __init__(self, bot):
@@ -32,25 +30,25 @@ class info(commands.Cog, description="Info commands for the bot and your server"
         embed.add_field(name="Categories", value=f"{len(ctx.guild.categories)} Categories", inline=False)
         embed.add_field(name="Text Channels", value=f"{len(ctx.guild.text_channels)} Channels", inline=False)
         if len(ctx.guild.voice_channels) <= 0:
-          embed.add_field(name="Voice Channels", value=f"No voice channels :tired_face:")
+            embed.add_field(name="Voice Channels", value="No voice channels :tired_face:")
 
         elif len(ctx.guild.voice_channels) <= 1:
-            embed.add_field(name="Voice Channels", value=f"1 Voice Channel")
+            embed.add_field(name="Voice Channels", value="1 Voice Channel")
 
         else:
-           embed.add_field(name="Voice Channels", value=f"{len(ctx.guild.voice_channels)} Voice Channels")
+            embed.add_field(name="Voice Channels", value="{len(ctx.guild.voice_channels)} Voice Channels")
 
         await ctx.send(embed=embed)
 
     @commands.command()
     @commands.cooldown(1, 2, commands.BucketType.member)
     async def ping(self, ctx):
-       before = time.monotonic()
-       embed = discord.Embed(title="Ping!", description=f'Ping', color=MAIN_COLOR)
-       message = await ctx.send(embed=embed)
-       ping = (time.monotonic() - before) * 1000
-       ping_embed = discord.Embed(title="Pong!", description=f'Api Ping  !  `{round(self.bot.latency * 1000)}` ms\nBot Ping ! `{int(ping)}` ms', color=MAIN_COLOR)
-       await message.edit(embed=ping_embed)
+        before = time.monotonic()
+        embed = discord.Embed(title="Ping!", description='Ping', color=MAIN_COLOR)
+        message = await ctx.send(embed=embed)
+        ping = (time.monotonic() - before) * 1000
+        ping_embed = discord.Embed(title="Pong!", description=f'Api Ping  !  `{round(self.bot.latency * 1000)}` ms\nBot Ping ! `{int(ping)}` ms', color=MAIN_COLOR)
+        await message.edit(embed=ping_embed)
 
     @commands.command()
     async def botinfo(self, ctx):
@@ -70,6 +68,7 @@ class info(commands.Cog, description="Info commands for the bot and your server"
     async def github(self, ctx):
         embed = discord.Embed(title="Github", description="Give me a star on **[Github](https://github.com/Synterra-Technologies/SynTech)**", color=MAIN_COLOR)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(info(bot=bot))
