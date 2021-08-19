@@ -8,6 +8,24 @@ from utils.database import db, prefix_collection
 
 from config import PREFIXES, DEVELOPERS
 
+
+async def get_prefix(bot: commands.AutoShardedBot, message: discord.Message):
+    if not message.guild:
+        return PREFIXES
+        # if its a DM then we will use the default prefixes cuz DMs dont have custom prefixes
+
+    guild_id = message.guild.id
+    document = prefix_collection.find_one({"_id": guild_id})
+    # we find the document in the database with the guild id
+    # btw this is non async (pymongo) might slow down the bot, but we can use motor in the future if its big, but for now its fine
+
+    if not document:
+        return PREFIXES
+        # if the document doesnt exist then we will use the default prefixes
+
+    return document["prefixes"]
+    # if the document exists then we will use the custom prefixes
+
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
 bot = commands.AutoShardedBot(
     owner_ids=DEVELOPERS,
