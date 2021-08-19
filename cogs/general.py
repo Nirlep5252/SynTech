@@ -1,22 +1,17 @@
 import asyncio
-import datetime
 import logging
-from functools import partial
 
 import discord
 from discord.ext import commands
 
-from config import ERROR_COLOR, MAIN_COLOR, VERIFIED, FUN_COLOR
-from typing import List
+from config import ERROR_COLOR, MAIN_COLOR, FUN_COLOR
 import random
 import aiohttp
-import http
-import secrets
-import io
 from utils.button import Counter, Pages
-from animec import *
+from animec import Aninews
 
-news = Aninews() 
+news = Aninews()
+
 
 class general(commands.Cog, description="This well be where all fun commands are"):
     def __init__(self, bot):
@@ -66,7 +61,7 @@ class general(commands.Cog, description="This well be where all fun commands are
 
     @commands.command(name="8ball")
     async def _8ball(self, ctx, *, question):
-     responses = [
+        responses = [
             "It is certain.",
             "It is decidedly so.",
             "Without a doubt.",
@@ -86,10 +81,11 @@ class general(commands.Cog, description="This well be where all fun commands are
             "My reply is no.",
             "My sources say no.",
             "Outlook not so good.",
-            "Very doubtful."]
-     response = random.choice(responses)
-     embed = discord.Embed(title="8ball", description=f"Question: {question}\nAnswer: {response}", color=FUN_COLOR)
-     await ctx.send(embed=embed)
+            "Very doubtful."
+        ]
+        response = random.choice(responses)
+        embed = discord.Embed(title="8ball", description=f"Question: {question}\nAnswer: {response}", color=FUN_COLOR)
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def beer(self, ctx, user: discord.Member = None, *, reason):
@@ -128,11 +124,11 @@ class general(commands.Cog, description="This well be where all fun commands are
 
     @commands.command(name="anime-quote")
     async def anime_quote(self, ctx):
-      async with aiohttp.ClientSession() as session:
-       request = await session.get('https://some-random-api.ml/animu/quote')
-       json = await request.json()
-       embed = discord.Embed(title=f"Quote from {json['anime']}", description=f"Characther: {json['characther']}\nQuote: {json['sentence']}", color=MAIN_COLOR)
-       await ctx.send(embed=embed)
+        async with aiohttp.ClientSession() as session:
+            request = await session.get('https://some-random-api.ml/animu/quote')
+            json = await request.json()
+            embed = discord.Embed(title=f"Quote from {json['anime']}", description=f"Characther: {json['characther']}\nQuote: {json['sentence']}", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
 
     @commands.command()
     async def count(self, ctx):
@@ -141,8 +137,9 @@ class general(commands.Cog, description="This well be where all fun commands are
     @commands.command(name="anime-news")
     async def anime_news(self, ctx):
         embed = discord.Embed(title="Home Page", description="Go to the next page for anime", color=MAIN_COLOR)
-        embeds = [(discord.Embed(title=f"{news.titles[i]}", description=f"{news.description[i]}", color=MAIN_COLOR)) for i in range(0,len(news.titles))]
+        embeds = [(discord.Embed(title=f"{news.titles[i]}", description=f"{news.description[i]}", color=MAIN_COLOR)) for i in range(0, len(news.titles))]
         await ctx.send(embed=embed, view=Pages(ctx, embeds))
+
 
 def setup(bot):
     bot.add_cog(general(bot=bot))

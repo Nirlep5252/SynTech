@@ -1,16 +1,20 @@
 import logging
 
 import asyncio
-from datetime import datetime
 
 import discord
 from discord.ext import commands
 
 from utils.database import db
-from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_WEBHOOK_2, GLOBAL_CHAT_CHANNEL, GLOBAL_CHAT_CHANNEL_2, PREFIXES
+from config import (
+    MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL,
+    GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_WEBHOOK_2, GLOBAL_CHAT_CHANNEL,
+    GLOBAL_CHAT_CHANNEL_2
+)
 from discord import Webhook
 import aiohttp
 import time
+
 
 class moderation(commands.Cog, description="This is the cog that allows you to get rid of bad boys"):
     def __init__(self, bot):
@@ -31,40 +35,40 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         result = db.collection.find_one({"_guild_id": member.guild.id})
 
         if not result:
-            return 
+            return
 
         if "alt" not in result:
             return
 
         if result['alt']:
-         print("On")
-         if time.time() - member.created_at.timestamp() < 2492000:
-                 channel = self.bot.get_channel(LOG_CHANNEL)
-                 embed = discord.Embed(title="Anti Alt", description=f"The user `{member.name}` is an alt account", color=ERROR_COLOR)
-                 await channel.send(embed=embed)
-         else:
-            print("acc old")
+            print("On")
+            if time.time() - member.created_at.timestamp() < 2492000:
+                channel = self.bot.get_channel(LOG_CHANNEL)
+                embed = discord.Embed(title="Anti Alt", description=f"The user `{member.name}` is an alt account", color=ERROR_COLOR)
+                await channel.send(embed=embed)
+            else:
+                print("acc old")
 
         else:
             print("Off")
-    
+
     @commands.Cog.listener()
     async def on_message(self, message):
-      if message.author.bot:
-          return
+        if message.author.bot:
+            return
 
-      elif f"!" in message.content:
-           return
+        elif "!" in message.content:
+            return
 
-      elif message.channel.id == GLOBAL_CHAT_CHANNEL:
-        async with aiohttp.ClientSession() as session:
-             webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK, session=session)
-             await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
+        elif message.channel.id == GLOBAL_CHAT_CHANNEL:
+            async with aiohttp.ClientSession() as session:
+                webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK, session=session)
+                await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
 
-      elif message.channel.id == GLOBAL_CHAT_CHANNEL_2:
-        async with aiohttp.ClientSession() as session:
-             webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK_2, session=session)
-             await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
+        elif message.channel.id == GLOBAL_CHAT_CHANNEL_2:
+            async with aiohttp.ClientSession() as session:
+                webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK_2, session=session)
+                await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
 
     @commands.command()
     @commands.has_permissions(manage_channels=True)
@@ -91,7 +95,7 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
 
         if member == ctx.author:
             embed = discord.Embed(title="Oh no",
-                                  description=f"Sorry but no",
+                                  description="Sorry but no",
                                   color=ERROR_COLOR)
             await ctx.send(embed=embed)
             return
@@ -104,11 +108,11 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         e = db.collection.find_one({"_guild": ctx.guild.id, "_id": member.id})
 
         if e is None:
-                db.collection.insert_one({"_guild": ctx.guild.id, "_id": member.id, "warnings": {"1": reason}})
-                embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
-                warning = discord.Embed(title="Warned", description=f"You have warned {member.name} for {reason}", color=MAIN_COLOR)
-                await ctx.send(embed=warning)
-                await member.send(embed=embed)
+            db.collection.insert_one({"_guild": ctx.guild.id, "_id": member.id, "warnings": {"1": reason}})
+            embed = discord.Embed(title="Warning", description=f"You were warned in {ctx.guild.name} for {reason}", color=MAIN_COLOR)
+            warning = discord.Embed(title="Warned", description=f"You have warned {member.name} for {reason}", color=MAIN_COLOR)
+            await ctx.send(embed=warning)
+            await member.send(embed=embed)
 
         else:
             warnings = e['warnings']
@@ -122,12 +126,12 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
     @commands.command()
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def clearwarns(self, ctx, member: discord.Member=None):
+    async def clearwarns(self, ctx, member: discord.Member = None):
         member = member or ctx.author
         e = db.collection.find_one({"_guild": ctx.guild.id, "_id": member.id})
 
         if e is None:
-              await ctx.send(f"{member.name} has no warnings")
+            await ctx.send(f"{member.name} has no warnings")
 
         else:
             a = db.collection.find_one({"_guild": ctx.guild.id, "_id": member.id, "warnings": e['warnings']})
@@ -137,32 +141,33 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
     @commands.command(aliases=["remove-warn"])
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    async def rwarn(self, ctx, number: int, member: discord.Member=None):
+    async def rwarn(self, ctx, number: int, member: discord.Member = None):
         member = member or ctx.author
         e = db.collection.find_one(
             {"_guild": ctx.guild.id, "_id": member.id})
 
         if e is None:
-              await ctx.send(f"{member.name} has no warnings")
+            await ctx.send(f"{member.name} has no warnings")
 
         else:
             warnings = e['warnings']
             warnings.pop(str(number))
             db.collection.update_one(
-            filter={"_id": member.id, "_guild": ctx.guild.id},
-            update={"$set": {"warnings": warnings}})
+                filter={"_id": member.id, "_guild": ctx.guild.id},
+                update={"$set": {"warnings": warnings}}
+            )
             embed = discord.Embed(title="Removed", description=f"{member.name} has one warn removed", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    async def warns(self, ctx, member: discord.Member=None):
+    async def warns(self, ctx, member: discord.Member = None):
         member = member or ctx.author
         e = db.collection.find_one({"_guild": ctx.guild.id, "_id": member.id})
         if e is None:
-               embed = discord.Embed(title="Warnings", description=f"{member.name} have no warnings", color=MAIN_COLOR)
-               await ctx.send(embed=embed)
+            embed = discord.Embed(title="Warnings", description=f"{member.name} have no warnings", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
 
         else:
             warnings = e['warnings']
@@ -183,17 +188,17 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, member: discord.Member, *, reason=None):
-            await member.send(f'You were kicked from {ctx.guild.name}')
-            await member.kick(reason=reason)
-            await ctx.send(f'{member} was kicked.')
+        await member.send(f'You were kicked from {ctx.guild.name}')
+        await member.kick(reason=reason)
+        await ctx.send(f'{member} was kicked.')
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
     async def ban(self, ctx, member: discord.Member, *, reason=None):
-            await member.send(f'You were banned from {ctx.guild.name}')
-            await member.ban(reason=reason)
-            await ctx.send(f'{member} was banned.')
+        await member.send(f'You were banned from {ctx.guild.name}')
+        await member.ban(reason=reason)
+        await ctx.send(f'{member} was banned.')
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -222,12 +227,12 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         e = db.collection.find_one({"_guild_id": ctx.guild.id})
 
         if e is None:
-                db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": True})
-                await ctx.send("Anit-alt is now True")
+            db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": True})
+            await ctx.send("Anit-alt is now True")
 
         else:
             db.collection.update_one(filter={"_guild_id": ctx.guild.id}, update={"$set": {"alt": True}})
-            await ctx.send(f"Anit-alt is now on")
+            await ctx.send("Anit-alt is now on")
 
     @anti_alt.command(name="false")
     @commands.has_permissions(administrator=True)
@@ -235,12 +240,13 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         e = db.collection.find_one({"_guild_id": ctx.guild.id})
 
         if e is None:
-                db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": False})
-                await ctx.send("Anit-alt is now off")
+            db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": False})
+            await ctx.send("Anit-alt is now off")
 
         else:
             db.collection.update_one(filter={"_guild_id": ctx.guild.id}, update={"$set": {"alt": False}})
             await ctx.send("Anit-alt is now off")
+
 
 def setup(bot):
     bot.add_cog(moderation(bot=bot))

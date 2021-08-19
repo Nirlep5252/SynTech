@@ -37,8 +37,8 @@ class ErrorHandling(commands.Cog, name="on command error"):
             await ctx.send(embed=embed, delete_after=5)
 
         elif isinstance(error, CheckFailure):
-            #embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
-            #await ctx.send(embed=embed)
+            # embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
+            # await ctx.send(embed=embed)
             return
         elif isinstance(error, BadArgument):
             embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)

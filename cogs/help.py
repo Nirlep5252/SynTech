@@ -1,16 +1,15 @@
 import discord
-from config import MAIN_COLOR, Website_link, EMOJIS_FOR_COGS
+from config import MAIN_COLOR, EMOJIS_FOR_COGS
 from utils.embeds import error_embed
 from discord.ext import commands
 import logging
-from utils.button import Menu
-import datetime
+
 
 async def get_cog_help(cog, context):
     cog = context.bot.get_cog(cog)
     if cog.qualified_name == 'nsfw' and not context.channel.is_nsfw():
         return error_embed(
-            f"Go away horny!",
+            "Go away horny!",
             "Please go to a **NSFW** channel"
         )
 
@@ -26,13 +25,13 @@ async def get_cog_help(cog, context):
 
     return embed
 
+
 class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         help_reply = self.context
-        ctx = self.context
         embed = discord.Embed(title="help command", color=MAIN_COLOR)
         embed.set_footer(text=f"Requested by {self.context.author}", icon_url=self.context.author.avatar.url)
-        yes = '\n'.join([f"{EMOJIS_FOR_COGS[cog.qualified_name]}{cog.qualified_name.title()} [ `{len(cmds)}` ]" for cog, cmds in mapping.items() if cog is not None and len(cmds) != 0 and cog.qualified_name.lower() == cog.qualified_name] )
+        yes = '\n'.join([f"{EMOJIS_FOR_COGS[cog.qualified_name]}{cog.qualified_name.title()} [ `{len(cmds)}` ]" for cog, cmds in mapping.items() if cog is not None and len(cmds) != 0 and cog.qualified_name.lower() == cog.qualified_name])
         embed.description = f"**Info**:\n `{help_reply.clean_prefix}help <cog>`\n**Prefix**: `{help_reply.clean_prefix}`\n**Cogs**:\n{yes}"
         await help_reply.send(embed=embed)
 
@@ -55,6 +54,7 @@ class MyHelp(commands.HelpCommand):
         help_cog = self.context
         await help_cog.send(embed=await get_cog_help(cog.qualified_name, help_cog))
 
+
 class help_command(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -64,5 +64,6 @@ class help_command(commands.Cog):
     async def on_ready(self):
         logging.info('Help is ready')
 
+
 def setup(bot):
-    bot.add_cog(help_command(bot=bot))  
+    bot.add_cog(help_command(bot=bot))
