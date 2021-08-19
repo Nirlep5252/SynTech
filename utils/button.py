@@ -1,9 +1,12 @@
 import discord
 from discord.ext import commands
 
-from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI, TICKETS_CATEGORY, STAFF_ROLE
+from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI, TICKETS_CATEGORY, STAFF_ROLE, EMOJIS_FOR_COGS, PREFIXES, FORWARD_ARROW, BACK_ARROW
 from utils.database import db
+from typing import List
 import random
+import datetime
+from utils.embeds import custom_embed
 
 class Button(discord.ui.View):
     def __init__(self):
@@ -84,13 +87,74 @@ class Ticket(discord.ui.View):
         else:
             await interaction.response.send_message("You have a ticket open", ephemeral=True)
 
-class Student(discord.ui.View):
+class Menu(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Join", style=discord.ButtonStyle.blurple, custom_id="student_view:blurple")
-    async def student(self, button, interaction):
-        role = interaction.guild.get_role(871154724269854740)
-        await interaction.user.add_roles(role)
-        embed = discord.Embed(title="Welcome", description="Welcome to the student program!", color=MAIN_COLOR)
-        await interaction.user.send(embed=embed)
+    @discord.ui.button(label="Info", style=discord.ButtonStyle.blurple)
+    async def menu(self, button, interaction):
+        embed = discord.Embed(title="Info", description=f"To get info on a cog just do `!help <cog name>`", color=MAIN_COLOR)
+        await interaction.message.edit(embed=embed, view=self)
+
+    @discord.ui.button(label="delete", style=discord.ButtonStyle.red)
+    async def delete(self, button, interaction):
+        await interaction.message.delete()
+
+class Pages(discord.ui.View):
+    def __init__(self, ctx: commands.Context, embeds: List[discord.Embed]):
+        super().__init__(timeout=None)
+        self.ctx = ctx
+        self.embeds = embeds
+        self.current = 0
+
+    async def edit(self, msg, pos):
+        em = self.embeds[pos]
+        em.set_footer(text=f"Page: {pos+1}")
+        await msg.edit(embed=em)
+
+    @discord.ui.button(emoji=f'{BACK_ARROW}', style=discord.ButtonStyle.blurple)
+    async def bac(self, b, i):
+        if self.current == 0:
+            return
+        await self.edit(i.message, self.current - 1)
+        self.current -= 1
+
+    @discord.ui.button(emoji="🏠", style=discord.ButtonStyle.blurple)
+    async def home(self, button, interaction):
+        embed = custom_embed(
+            f"Home Page",
+            "OWO TEST OWO"
+        )
+        await interaction.message.edit(embed=embed, view=self)
+
+    @discord.ui.button(emoji=f'{FORWARD_ARROW}', style=discord.ButtonStyle.blurple)
+    async def nex(self, b, i):
+        if self.current + 1 == len(self.embeds):
+            return
+        await self.edit(i.message, self.current + 1)
+        self.current += 1
+
+    async def interaction_check(self, interaction):
+        if interaction.user == self.ctx.author:
+            return True
+        await interaction.response.send_message("Not your command", ephemeral=True)
+
+class Counter(discord.ui.View):
+    def __init__(self, ctx, *, timeout=None):
+        super().__init__(timeout=timeout)
+        self.ctx = ctx
+
+    @discord.ui.button(label='0', style=discord.ButtonStyle.red)
+    async def count(self, button: discord.ui.Button, interaction: discord.Interaction):
+        number = int(button.label) if button.label else 0
+        if number + 1 >= 999:
+            button.style = discord.ButtonStyle.green
+            button.disabled = True
+        button.label = str(number + 1)
+
+        await interaction.response.edit_message(view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction):
+        if interaction.user == self.ctx.author:
+            return True
+        await interaction.response.send_message("Not your command", ephemeral=True)
