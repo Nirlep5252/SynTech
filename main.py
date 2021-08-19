@@ -33,6 +33,7 @@ bot = commands.AutoShardedBot(
     intents=intents,
     case_insensitive=True,
     allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=True),
+    strip_after_prefix=True
 )
 logging.basicConfig(level=logging.INFO)  # filename="logs.txt")
 bot.load_extension('jishaku')
