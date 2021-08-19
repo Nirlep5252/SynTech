@@ -6,12 +6,10 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from utils.database import db
 
-from config import PREFIXES
-
-from config import Config as config
+from config import PREFIXES, DEVELOPERS
 
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-bot = commands.AutoShardedBot(owner_ids = [321750582912221184, 733536002563637298], command_prefix=PREFIXES, intents=intents, case_insensitive=True)
+bot = commands.AutoShardedBot(owner_ids = DEVELOPERS, command_prefix=PREFIXES, intents=intents, case_insensitive=True)
 logging.basicConfig(level=logging.INFO) #filename="logs.txt")
 bot.load_extension('jishaku')
 
