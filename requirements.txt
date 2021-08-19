@@ -11,3 +11,4 @@ timeago
 psutil
 youtube_dl
 pynacl
+animec
