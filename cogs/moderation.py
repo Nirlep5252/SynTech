@@ -1,6 +1,7 @@
 import logging
 
 import asyncio
+from main import get_prefix
 
 import discord
 from discord.ext import commands
@@ -17,7 +18,7 @@ import time
 
 
 class moderation(commands.Cog, description="This is the cog that allows you to get rid of bad boys"):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.AutoShardedBot):
         self.bot = bot
 
     @commands.Cog.listener()
@@ -69,6 +70,17 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
             async with aiohttp.ClientSession() as session:
                 webhook = Webhook.from_url(GLOBAL_CHAT_WEBHOOK_2, session=session)
                 await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar.url)
+
+    @commands.Cog.listener("on_message")
+    async def prefix_reply(self, message: discord.Message):
+        if message.author.bot:
+            return
+        bot_id = self.bot.user.id
+        if message.content.lower() in [f'<@{bot_id}>', f'<@!{bot_id}>']:
+            prefixes = await get_prefix(self.bot, message)
+            return await message.reply(
+                'My prefixes are: ' + ', '.join([f"`{prefix}`" for prefix in prefixes])
+            )
 
     @commands.group(
         aliases=['prefix', 'changeprefix', 'set-prefix', 'set_prefix', 'prefixes'],

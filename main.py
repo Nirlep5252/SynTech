@@ -63,4 +63,7 @@ async def on_message(message):
         return
 
 load_dotenv('.env')
-bot.run(os.getenv('DISCORD_BOT_SECRET'))
+
+# this is so that when i import `get_prefix` method in other files, it wont run the file again
+if __name__ == "__main__":
+    bot.run(os.getenv('DISCORD_BOT_SECRET'))
