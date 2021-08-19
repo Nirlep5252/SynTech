@@ -123,7 +123,7 @@ class Pages(discord.ui.View):
     async def home(self, button, interaction):
         embed = custom_embed(
             f"Home Page",
-            "Go to the next page for anime news"
+            "Go to the next page for anime"
         )
         await interaction.message.edit(embed=embed, view=self)
 
