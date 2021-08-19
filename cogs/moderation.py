@@ -54,6 +54,14 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
             print("Off")
 
     @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        h = db.logs_collection.find_one({"_id": guild.id})
+        if h is None:
+           return
+        else:
+         db.logs_collection.delete_one(h)
+
+    @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
             return
@@ -154,7 +162,6 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
     async def warn(self, ctx, member: discord.Member, *, reason="No reason was given"):
-
         if member == ctx.author:
             embed = discord.Embed(title="Oh no",
                                   description="Sorry but no",
@@ -250,17 +257,38 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, member: discord.Member, *, reason=None):
-        await member.send(f'You were kicked from {ctx.guild.name}')
-        await member.kick(reason=reason)
-        await ctx.send(f'{member} was kicked.')
+        h = db.logs_collection.find_one({"_id": ctx.guild.id})
+        if h is None:
+            embed = discord.Embed(title="Kicked!", description=f"I have kicked {member.name} but i could not log the kick please run `{ctx.clean_prefix}setlogs add <channel>`", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+            await member.send(f'You were kicked from {ctx.guild.name}')
+            await member.kick(reason=reason)
+            #await ctx.send(f'{member} was kicked.')
+        else:
+            channel = self.bot.get_channel(h['channel'])    
+            embed = discord.Embed(title="Kicked!", description=f"```User: {member.name}\nStaff: {ctx.author.name}\nReason: {reason}```", color=MAIN_COLOR)
+            await channel.send(embed=embed)
+            await member.send(f'You were kicked from {ctx.guild.name}')
+            await member.kick(reason=reason)
+            await ctx.send(f'{member.name} was kicked.')
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
     async def ban(self, ctx, member: discord.Member, *, reason=None):
-        await member.send(f'You were banned from {ctx.guild.name}')
-        await member.ban(reason=reason)
-        await ctx.send(f'{member} was banned.')
+        h = db.logs_collection.find_one({"_id": ctx.guild.id})
+        if h is None:
+            embed = discord.Embed(title="banned!", description=f"I have banned {member.name} but i could not log the kick please run `{ctx.clean_prefix}setlogs add <channel>`", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+            await member.send(f'You were banned from {ctx.guild.name}')
+            await member.ban(reason=reason)
+        else:
+            channel = self.bot.get_channel(h['channel'])    
+            embed = discord.Embed(title="Banned!", description=f"```User: {member.name}\nStaff: {ctx.author.name}\nReason: {reason}```", color=MAIN_COLOR)
+            await channel.send(embed=embed)
+            await member.send(f'You were banned from {ctx.guild.name}')
+            await member.ban(reason=reason)
+            await ctx.send(f'{member.name} was banned.')
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -309,6 +337,57 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
             db.collection.update_one(filter={"_guild_id": ctx.guild.id}, update={"$set": {"alt": False}})
             await ctx.send("Anit-alt is now off")
 
+    @commands.group( invoke_without_command=True)
+    @commands.has_permissions(manage_channels=True)
+    async def setlogs(self, ctx):
+        if ctx.invoked_subcommand is None:
+            return await ctx.send_help(ctx.command)
+
+    @setlogs.command()
+    @commands.has_permissions(manage_channels=True)
+    async def add(self, ctx, channel: discord.TextChannel):
+        channel_id = channel.id
+        e = db.logs_collection.find_one(
+                {"_id": ctx.guild.id})
+
+        if e is None:
+                postchannel = {"_id": ctx.guild.id, "channel": channel_id}
+                db.logs_collection.insert_one(postchannel)
+                embed = discord.Embed(title="Logs!", description=f'You set `{channel.name}` as your logs channel', color=MAIN_COLOR)
+                await ctx.send(embed=embed)
+
+        else:
+            db.logs_collection.update_one(
+                    filter={"_id": ctx.guild.id},
+                    update={"$set": {"channel": channel_id}}
+                )
+            embed = discord.Embed(title="Logs!", description=f'You set `{channel.name}` as your logs channel', color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+    @setlogs.command()
+    @commands.has_guild_permissions(manage_channels=True)
+    async def remove(self, ctx):
+        h = db.logs_collection.find_one({"_id": ctx.guild.id})
+
+        if h is None:
+            await ctx.send("You have not set a logs channel")
+
+        else:
+         await ctx.send(f"The channel <#{h['channel']}> is no longer your logs channel")
+         db.logs_collection.delete_one(h)
+
+    @commands.command()
+    @commands.has_guild_permissions(manage_channels=True)
+    async def config(self, ctx): #command not working idk why it isn't
+        h = db.logs_collection.find_one({"_id": ctx.guild.id})
+
+        if h is None:
+            embed = discord.Embed(f"Config for {ctx.guild.name}", description=f"Logs Channel: No channel for logs set yet.", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+        else:
+            embed = discord.Embed(f"Config for {ctx.guild.name}", description=f"Logs Channel: `<#{h['channel']}>`", color=MAIN_COLOR)
+            await ctx.send(embed=embed)                
 
 def setup(bot):
     bot.add_cog(moderation(bot=bot))

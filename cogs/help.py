@@ -3,6 +3,7 @@ from config import MAIN_COLOR, EMOJIS_FOR_COGS
 from utils.embeds import error_embed
 from discord.ext import commands
 import logging
+import datetime
 
 
 async def get_cog_help(cog, context):
@@ -24,7 +25,6 @@ async def get_cog_help(cog, context):
     embed.description = f"To get info help, please use `{context.clean_prefix}help <command>`\n\n**Description:**\n`{cog.description}`\n\n**Commands:**\n{cmd_info}"
 
     return embed
-
 
 class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
@@ -72,7 +72,6 @@ class help_command(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('Help is ready')
-
 
 def setup(bot):
     bot.add_cog(help_command(bot=bot))
