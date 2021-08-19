@@ -17,3 +17,8 @@ WEBHOOK_1=Server1 webhook here
 WEBHOOK_2=Server2 webhook here
 ```
 You can get a mongo link [here](https://www.mongodb.com/)
+
+<h1 align="center">Contributors!</h1>
+<a href="https://github.com/Synterra-Technologies/SynTech/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Synterra-Technologies/SynTech" />
+</a>
