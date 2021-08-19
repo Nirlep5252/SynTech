@@ -78,9 +78,19 @@ class money(commands.Cog, description="Make money then sleep"):
     @commands.command()
     @commands.cooldown(1, 18000, commands.BucketType.member)
     async def rob(self, ctx, member: discord.Member=None):
-        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id}) 
-        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})      
+        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})      
         number = 20
+
+        if member == None:
+            ctx.command.reset_cooldown(ctx)
+            await ctx.send("Please ping a user")
+            return
+
+        elif member == ctx.author:
+            await ctx.send("Please ping a user")
+            return
+
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id}) 
 
         if a is None:
             ctx.command.reset_cooldown(ctx)

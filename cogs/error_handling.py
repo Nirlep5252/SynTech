@@ -32,6 +32,10 @@ class ErrorHandling(commands.Cog, name="on command error"):
         elif isinstance(error, MissingRequiredArgument):
             embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
             await ctx.send(embed=embed)
+        elif isinstance(error, commands.NotOwner):
+            embed = discord.Embed(title="Developer Only", description="You must be a developer to run this command", color=ERROR_COLOR)
+            await ctx.send(embed=embed, delete_after=5)
+
         elif isinstance(error, CheckFailure):
             #embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
             #await ctx.send(embed=embed)
@@ -41,7 +45,7 @@ class ErrorHandling(commands.Cog, name="on command error"):
             await ctx.send(embed=embed)
         else:
             channel = self.bot.get_channel(ERROR_CHANNEL)
-            embed = discord.Embed(title="Error!", description=f"{error}", color=ERROR_COLOR)
+            embed = discord.Embed(title="Error!", description=f"Error:\n```{error}```\nServer:\n```{ctx.guild.name}```", color=ERROR_COLOR)
             await channel.send(embed=embed)
             logging.info(error)
 

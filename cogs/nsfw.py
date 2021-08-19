@@ -19,10 +19,10 @@ class nsfw(commands.Cog, description="18+ Boys"):
     @commands.is_nsfw()
     async def pussy(self, ctx):
       async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=pussy')
+       request = await session.get('https://nekos.life/api/v2/img/pussy')
        json = await request.json()
        embed = discord.Embed(title="Pussy!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
+       embed.set_image(url=json['url'])
        await ctx.send(embed=embed)
 
     @commands.command(description='You can see someones ||feet||')
@@ -49,40 +49,30 @@ class nsfw(commands.Cog, description="18+ Boys"):
     @commands.is_nsfw()
     async def blowjob(self, ctx):
       async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=blowjob')
+       request = await session.get('https://nekos.life/api/v2/img/blowjob')
        json = await request.json()
        embed = discord.Embed(title="Blow Job!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
+       embed.set_image(url=json['url'])
        await ctx.send(embed=embed)
 
     @commands.command(description='Boobiesssss')
     @commands.is_nsfw()
     async def boobs(self, ctx):
       async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=boobs')
+       request = await session.get('https://nekos.life/api/v2/img/boobs')
        json = await request.json()
        embed = discord.Embed(title="Boobies!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
-       await ctx.send(embed=embed)
-
-    @commands.command(description='Nice')
-    @commands.is_nsfw()
-    async def ass(self, ctx):
-      async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=ass')
-       json = await request.json()
-       embed = discord.Embed(title="Nice Ass!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
+       embed.set_image(url=json['url'])
        await ctx.send(embed=embed)
 
     @commands.command(description='Ooh noo')
     @commands.is_nsfw()
     async def anal(self, ctx):
       async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=anal')
+       request = await session.get('https://nekos.life/api/v2/img/anal')
        json = await request.json()
        embed = discord.Embed(title="That most hurt!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
+       embed.set_image(url=json['url'])
        await ctx.send(embed=embed)
 
     @commands.command(description='Yess!')
@@ -99,10 +89,10 @@ class nsfw(commands.Cog, description="18+ Boys"):
     @commands.is_nsfw()
     async def holo(self, ctx):
       async with aiohttp.ClientSession() as session:
-       request = await session.get('https://nekobot.xyz/api/image?type=holo')
+       request = await session.get('https://nekos.life/api/v2/img/holo')
        json = await request.json()
        embed = discord.Embed(title="Holo!", color=NSFW_COLOR)
-       embed.set_image(url=json['message'])
+       embed.set_image(url=json['url'])
        await ctx.send(embed=embed)
 
     @commands.command()
@@ -111,6 +101,10 @@ class nsfw(commands.Cog, description="18+ Boys"):
        if member == None:
            embed = discord.Embed(title="oh no", description=f"You need to ping someone", color=NSFW_COLOR)
            await ctx.send(embed=embed)
+
+       elif member == ctx.author:
+           await ctx.send("Your sad")
+           
        else:
           async with aiohttp.ClientSession() as session:
            request = await session.get('https://purrbot.site/api/img/nsfw/fuck/gif')

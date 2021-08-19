@@ -10,11 +10,11 @@ from utils.database import db
 from config import MAIN_COLOR, ERROR_COLOR, WARN_COLOR, LOG_CHANNEL, GLOBAL_CHAT_WEBHOOK, GLOBAL_CHAT_WEBHOOK_2, GLOBAL_CHAT_CHANNEL, GLOBAL_CHAT_CHANNEL_2, PREFIXES
 from discord import Webhook
 import aiohttp
+import time
 
 class moderation(commands.Cog, description="This is the cog that allows you to get rid of bad boys"):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -26,6 +26,27 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         embed = discord.Embed(title="Command Used!", description=f"**Command:**\n```{ctx.message.content}```\n**Guild:**\n```{ctx.guild.name} - {ctx.guild.id}```\n**Channel:**\n```{ctx.channel.name} - {ctx.channel.id}```\n**User:**\n```{ctx.author.name} - {ctx.author.id}```", timestamp=discord.utils.utcnow(), color=MAIN_COLOR).set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar.url)
         await channel.send(embed=embed)
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        result = db.collection.find_one({"_guild_id": member.guild.id})
+
+        if not result:
+            return 
+
+        if "alt" not in result:
+            return
+
+        if result['alt']:
+         print("On")
+         if time.time() - member.created_at.timestamp() < 2492000:
+                 channel = self.bot.get_channel(LOG_CHANNEL)
+                 embed = discord.Embed(title="Anti Alt", description=f"The user `{member.name}` is an alt account", color=ERROR_COLOR)
+                 await channel.send(embed=embed)
+         else:
+            print("acc old")
+
+        else:
+            print("Off")
     
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -185,6 +206,41 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
             if (user.name, user.discriminator) == (member_name, member_discriminator):
                 await ctx.guild.unban(user)
                 await ctx.send(f'{member} is unbanned')
+
+    @commands.group(name="anti-alt", invoke_without_command=True)
+    @commands.has_permissions(administrator=True)
+    async def anti_alt(self, ctx):
+        embed = discord.Embed(title="Anti-Alt", description=f"WOW {self.bot.user.name} now has anti-alt this is great make use to use this well", color=MAIN_COLOR)
+        await ctx.send(embed=embed, delete_after=5)
+        await asyncio.sleep(5)
+        embed_help = discord.Embed(title="Help", description=f"Info: Too use anti-alt do `{ctx.clean_prefix}anti-alt true` and to turn it off do `{ctx.clean_prefix}anit-alt false`", color=MAIN_COLOR)
+        await ctx.send(embed=embed_help)
+
+    @anti_alt.command(name="true")
+    @commands.has_permissions(administrator=True)
+    async def _true(self, ctx):
+        e = db.collection.find_one({"_guild_id": ctx.guild.id})
+
+        if e is None:
+                db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": True})
+                await ctx.send("Anit-alt is now True")
+
+        else:
+            db.collection.update_one(filter={"_guild_id": ctx.guild.id}, update={"$set": {"alt": True}})
+            await ctx.send(f"Anit-alt is now on")
+
+    @anti_alt.command(name="false")
+    @commands.has_permissions(administrator=True)
+    async def _false(self, ctx):
+        e = db.collection.find_one({"_guild_id": ctx.guild.id})
+
+        if e is None:
+                db.collection.insert_one({"_guild_id": ctx.guild.id, "alt": False})
+                await ctx.send("Anit-alt is now off")
+
+        else:
+            db.collection.update_one(filter={"_guild_id": ctx.guild.id}, update={"$set": {"alt": False}})
+            await ctx.send("Anit-alt is now off")
 
 def setup(bot):
     bot.add_cog(moderation(bot=bot))

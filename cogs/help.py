@@ -1,10 +1,18 @@
 import discord
 from config import MAIN_COLOR, Website_link, EMOJIS_FOR_COGS
+from utils.embeds import error_embed
 from discord.ext import commands
 import logging
+from utils.button import Menu
+import datetime
 
 async def get_cog_help(cog, context):
     cog = context.bot.get_cog(cog)
+    if cog.qualified_name == 'nsfw' and not context.channel.is_nsfw():
+        return error_embed(
+            f"Go away horny!",
+            "Please go to a **NSFW** channel"
+        )
 
     embed = discord.Embed(title=f"{cog.qualified_name.title()} Category", color=MAIN_COLOR)
 
@@ -21,26 +29,11 @@ async def get_cog_help(cog, context):
 class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         help_reply = self.context
+        ctx = self.context
         embed = discord.Embed(title="help command", color=MAIN_COLOR)
-        embed.set_thumbnail(url=self.context.bot.user.avatar.url)
         embed.set_footer(text=f"Requested by {self.context.author}", icon_url=self.context.author.avatar.url)
-        embed.add_field(name="Prefix", value=f"`{help_reply.clean_prefix}`", inline=False)
-        embed.add_field(name="Commands", value=f"{len(help_reply.bot.commands)} Commands", inline=False)
-        for cog, cmds in mapping.items():
-         if cog is not None and cog.qualified_name.lower() == cog.qualified_name:
-              value = f', {help_reply.clean_prefix}'.join([cmd.name for cmd in cmds])
-              if len(cmds) != 0:
-                if cog.qualified_name == 'nsfw' and not self.context.channel.is_nsfw():
-                     pass
-                else:
-                 embed.add_field(
-                    name=f"{EMOJIS_FOR_COGS[cog.qualified_name]} {cog.qualified_name.title()} [ `{len(cmds)}` ]",
-                    value=f"{help_reply.clean_prefix}{value}",
-                    inline=False
-                    )
-              else:
-                pass
-
+        yes = '\n'.join([f"{EMOJIS_FOR_COGS[cog.qualified_name]}{cog.qualified_name.title()} [ `{len(cmds)}` ]" for cog, cmds in mapping.items() if cog is not None and len(cmds) != 0 and cog.qualified_name.lower() == cog.qualified_name] )
+        embed.description = f"**Info**:\n `{help_reply.clean_prefix}help <cog>`\n**Prefix**: `{help_reply.clean_prefix}`\n**Cogs**:\n{yes}"
         await help_reply.send(embed=embed)
 
     async def send_command_help(self, command):

@@ -3,10 +3,15 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import VERIFIED, MAIN_COLOR
-from utils.button import Verify, Ticket, Close
+from config import VERIFIED, MAIN_COLOR, EMOJIS_FOR_COGS
+from utils.button import Close, Pages, Ticket, Verify
 from utils.database import db
+import asyncio
+import sys
+from utils.embeds import custom_embed
+from animec import *
 
+news = Aninews() 
 
 class owners(commands.Cog, description="No go away developers only"):
     def __init__(self, bot):
@@ -85,6 +90,20 @@ class owners(commands.Cog, description="No go away developers only"):
             a = db.collection.find_one({"user": member.id})
             db.collection.delete_one(a)
             await ctx.send(f'{member.name} Has been unblacklisted')
+
+    @commands.command()
+    @commands.is_owner()
+    async def kill(self, ctx):
+        await ctx.send("Killing the bot in 3 seconds")
+        await asyncio.sleep(1)
+        await ctx.send("1")
+        await asyncio.sleep(1)
+        await ctx.send("2")
+        await asyncio.sleep(1)
+        await ctx.send("3")
+        await ctx.send("Done")
+        await asyncio.sleep(1)
+        await sys.exit()
 
 def setup(bot):
     bot.add_cog(owners(bot=bot))

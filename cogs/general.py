@@ -7,11 +7,16 @@ import discord
 from discord.ext import commands
 
 from config import ERROR_COLOR, MAIN_COLOR, VERIFIED, FUN_COLOR
+from typing import List
 import random
 import aiohttp
 import http
 import secrets
 import io
+from utils.button import Counter, Pages
+from animec import *
+
+news = Aninews() 
 
 class general(commands.Cog, description="This well be where all fun commands are"):
     def __init__(self, bot):
@@ -128,6 +133,16 @@ class general(commands.Cog, description="This well be where all fun commands are
        json = await request.json()
        embed = discord.Embed(title=f"Quote from {json['anime']}", description=f"Characther: {json['characther']}\nQuote: {json['sentence']}", color=MAIN_COLOR)
        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def count(self, ctx):
+        await ctx.send("Hit the button to count", view=Counter(ctx))
+
+    @commands.command(name="anime-news")
+    async def anime_news(self, ctx):
+        embed = discord.Embed(title="Home Page", description="Go to the next page for anime", color=MAIN_COLOR)
+        embeds = [(discord.Embed(title=f"{news.titles[i]}", description=f"{news.description[i]}", color=MAIN_COLOR)) for i in range(0,len(news.titles))]
+        await ctx.send(embed=embed, view=Pages(ctx, embeds))
 
 def setup(bot):
     bot.add_cog(general(bot=bot))
