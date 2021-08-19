@@ -9,7 +9,7 @@ from utils.database import db, prefix_collection
 from config import PREFIXES, DEVELOPERS
 
 
-async def get_prefix(bot: commands.AutoShardedBot, message: discord.Message):
+async def get_prefix(bot: commands.AutoShardedBot, message: discord.Message) -> list[str]:
     if not message.guild:
         return PREFIXES
         # if its a DM then we will use the default prefixes cuz DMs dont have custom prefixes
@@ -29,7 +29,7 @@ async def get_prefix(bot: commands.AutoShardedBot, message: discord.Message):
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
 bot = commands.AutoShardedBot(
     owner_ids=DEVELOPERS,
-    command_prefix=PREFIXES,
+    command_prefix=get_prefix,
     intents=intents,
     case_insensitive=True,
     allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=True),
@@ -47,6 +47,7 @@ async def on_ready():
     logging.info(' __________________________________________________ ')
     logging.info('|                                                  |')
     logging.info('|                 Bot has Started                  |')
+    logging.info('|                                                  |')
     logging.info('+__________________________________________________+')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="!help"))
 

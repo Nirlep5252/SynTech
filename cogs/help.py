@@ -54,6 +54,15 @@ class MyHelp(commands.HelpCommand):
         help_cog = self.context
         await help_cog.send(embed=await get_cog_help(cog.qualified_name, help_cog))
 
+    async def send_group_help(self, group: commands.Group):
+        prefix = self.context.clean_prefix
+        embed = discord.Embed(
+            title="Group command information",
+            description='\n'.join([f"`{prefix}{group} {command} {command.signature}` - {command.help}" for command in group.commands]),
+            color=MAIN_COLOR
+        )
+        await self.context.reply(embed=embed)
+
 
 class help_command(commands.Cog):
     def __init__(self, bot):
