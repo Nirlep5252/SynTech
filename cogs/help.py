@@ -58,7 +58,7 @@ class MyHelp(commands.HelpCommand):
         prefix = self.context.clean_prefix
         embed = discord.Embed(
             title="Group command information",
-            description='\n'.join([f"`{prefix}{group} {command.signature}` - {command.help}" for command in group.commands]),
+            description='\n'.join([f"`{prefix}{command.full_parent_name} {command.signature}` - {command.help}" for command in group.commands]),
             color=MAIN_COLOR
         )
         await self.context.reply(embed=embed)
