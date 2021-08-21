@@ -100,8 +100,8 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    @setprefix.command(help="Add a prefix!")
-    async def add(self, ctx: commands.Context, *, prefix: str = None):
+    @setprefix.command(help="Add a prefix!", name="add")
+    async def _add(self, ctx: commands.Context, *, prefix: str = None):
         if not prefix:
             return await ctx.reply(f"Please enter a prefix.\nCorrect Usage: `{ctx.clean_prefix}prefix add <prefix>`")
         document = prefix_collection.find_one({"_id": ctx.guild.id})
@@ -123,8 +123,8 @@ class moderation(commands.Cog, description="This is the cog that allows you to g
                 )
                 return await ctx.reply(f"The prefix `{prefix}` has been added.")
 
-    @setprefix.command(help="Remove a prefix!")
-    async def remove(self, ctx: commands.Context, *, prefix: str = None):
+    @setprefix.command(help="Remove a prefix!", name="remove")
+    async def _remove(self, ctx: commands.Context, *, prefix: str = None):
         if not prefix:
             return await ctx.reply(f"Please enter a prefix.\nCorrect Usage: `{ctx.clean_prefix}prefix remove <prefix>`")
         document = prefix_collection.find_one({"_id": ctx.guild.id})
