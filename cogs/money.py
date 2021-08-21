@@ -3,7 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import MAIN_COLOR, MONEY_EMOJI
+from config import EMOJIS_FOR_COGS, MAIN_COLOR, MONEY_EMOJI
 from utils.database import db
 import random
 
@@ -11,10 +11,38 @@ import random
 class money(commands.Cog, description="Make money then sleep"):
     def __init__(self, bot):
         self.bot = bot
+        self.items = {
+            "dog": {"prize": 1000, "description": "Buy a cute doggo 🐶", "emoji": "🐶"},
+            "cat": {"prize": 1000, "description": "Buy a cute kitten >w<", "emoji": "😺"},
+            "blue": {"prize": 69420, "description": "Buy a wild sexy Blue.", "emoji": "<:mmm:842687641639452673>"},
+            "avi": {"prize": 69420, "description": "A very cute boi U-U", "emoji": "<a:LeAvi:868476055512555520>"},
+            "sans": {"prize": 69420, "description": "Sans-chan!~", "emoji": "<:cat_uwu:856054147693936673>"},
+            "nirlep": {"prize": -1, "description": "Ugly person", "emoji": "<:ew:805832225538310145>"},
+            "house": {"prize": 10000, "description": "A house for you to live in!", "emoji": "🏠"},
+            # add more items here :>
+        }
 
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('Money is ready')
+
+    @commands.command(help="See what you can buy", name="shop")
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def _shop(self, ctx: commands.Context):
+        embed = discord.Embed(
+            title=f"Shop [{len(self.items)}]",
+            description="Here's what you can buy",
+            colour=MAIN_COLOR,
+        ).set_footer(text=f"Use {ctx.clean_prefix}buy <item> to buy an item!")
+        for item, stuff in self.items.items():
+            embed.add_field(
+                name=f"{stuff['emoji']} • {item.title()}",
+                value=f"""
+**Prize:** {EMOJIS_FOR_COGS['money']} {stuff['prize']}
+**Description:** {stuff['description']}
+                """
+            )
+        await ctx.reply(embed=embed)
 
     @commands.command()
     @commands.cooldown(1, 900, commands.BucketType.member)
