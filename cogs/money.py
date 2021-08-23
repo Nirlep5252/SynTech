@@ -1,26 +1,21 @@
 import logging
-
+import random
 import discord
-from discord.ext import commands
 
+from discord.ext import commands
+from typing import Optional
 from config import EMOJIS_FOR_COGS, MAIN_COLOR, MONEY_EMOJI
 from utils.database import db
-import random
+from utils.constants import items
+from utils.converters import ItemConverter
+from utils.classes import Item
+from utils.exceptions import NoMoney
 
 
 class money(commands.Cog, description="Make money then sleep"):
     def __init__(self, bot):
         self.bot = bot
-        self.items = {
-            "dog": {"prize": 1000, "description": "Buy a cute doggo 🐶", "emoji": "🐶"},
-            "cat": {"prize": 1000, "description": "Buy a cute kitten >w<", "emoji": "😺"},
-            "blue": {"prize": 69420, "description": "Buy a wild sexy Blue.", "emoji": "<:mmm:842687641639452673>"},
-            "avi": {"prize": 69420, "description": "A very cute boi U-U", "emoji": "<a:LeAvi:868476055512555520>"},
-            "sans": {"prize": 69420, "description": "Sans-chan!~", "emoji": "<:cat_uwu:856054147693936673>"},
-            "nirlep": {"prize": -1, "description": "Ugly person", "emoji": "<:ew:805832225538310145>"},
-            "house": {"prize": 10000, "description": "A house for you to live in!", "emoji": "🏠"},
-            # add more items here :>
-        }
+        self.items = items
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -184,9 +179,58 @@ class money(commands.Cog, description="Make money then sleep"):
             embed = discord.Embed(title="Daily", description=f"You got 100{MONEY_EMOJI} from your daily", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True)
-    async def buy(self, ctx):
-        await ctx.send("this is WIP")
+    @commands.command(help="Buy an item from the shop!")
+    async def buy(self, ctx: commands.Context, item: ItemConverter = None, amount: Optional[int] = 1):
+        if not item:
+            return await ctx.reply("Please specify an item to buy!")
+        if amount <= 0:
+            return await ctx.reply("Please enter a positive value next time!")
+        item: Item = item  # am just type hinting
+
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
+        if e is None:
+            db.collection.insert_one({"guild_id": ctx.guild.id, "_user": ctx.author.id, "money": 0, "bank": 0})
+            raise NoMoney(0, item.prize * amount)
+        if e['money'] < item.prize * amount:
+            raise NoMoney(e['money'], item.prize * amount)
+
+        items = e.get('items', {})
+        if item.name in items:
+            items[item.name] += amount
+        else:
+            items[item.name] = amount
+        db.collection.update_one(
+            filter={"guild_id": ctx.guild.id, "_user": ctx.author.id},
+            update={"$set": {
+                "money": e['money'] - item.prize * amount,
+                "items": items
+            }}
+        )
+        embed = discord.Embed(
+            title="Item(s) Bought!",
+            description=f"You bought {item.name} {amount} time(s) for {item.prize * amount} {MONEY_EMOJI}",
+            color=MAIN_COLOR
+        )
+        await ctx.reply(embed=embed)
+
+    @commands.command(help="Check your inventory!", aliases=['inv', 'bag'])
+    async def inventory(self, ctx: commands.Context, user: Optional[discord.Member] = None):
+        user = user or ctx.author
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": user.id})
+        if e is None:
+            embed = discord.Embed(title="Inventory", description=f"{user.name} has no items", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+        else:
+            items = e.get('items', {})
+            if not items:
+                embed = discord.Embed(title="Inventory", description=f"{user.name} has no items", color=MAIN_COLOR)
+                await ctx.send(embed=embed)
+            else:
+                embed = discord.Embed(title="Inventory", description=f"{user.name}'s items", color=MAIN_COLOR)
+                for item, amount in items.items():
+                    item = await ItemConverter().convert(ctx, item)
+                    embed.add_field(name=f"{item.emoji} {item.name.title()}", value=amount, inline=False)
+                await ctx.send(embed=embed)
 
 
 def setup(bot):
