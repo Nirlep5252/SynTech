@@ -1,4 +1,5 @@
 import logging
+from utils.exceptions import ItemNotFound, NoMoney
 import discord
 from config import ERROR_COLOR, ERROR_CHANNEL
 
@@ -11,7 +12,7 @@ class ErrorHandling(commands.Cog, name="on command error"):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx: commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
             day = round(error.retry_after / 86400)
             hour = round(error.retry_after / 3600)
@@ -36,6 +37,20 @@ class ErrorHandling(commands.Cog, name="on command error"):
             embed = discord.Embed(title="Developer Only", description="You must be a developer to run this command", color=ERROR_COLOR)
             await ctx.send(embed=embed, delete_after=5)
 
+        elif isinstance(error, ItemNotFound):
+            embed = discord.Embed(
+                title="Item doesn't exist!",
+                description=f"The item `{error.item}` does not exist!\nUse `{ctx.clean_prefix}shop` for a list of all items.",
+                color=ERROR_COLOR
+            )
+            await ctx.reply(embed=embed)
+        elif isinstance(error, NoMoney):
+            embed = discord.Embed(
+                title="You don't have enough money!",
+                description=f"You have `{error.current}$` but you need `{error.required}$` for this!",
+                color=ERROR_COLOR
+            )
+            await ctx.reply(embed=embed)
         elif isinstance(error, CheckFailure):
             # embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
             # await ctx.send(embed=embed)
