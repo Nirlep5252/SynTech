@@ -36,7 +36,7 @@ class info(commands.Cog, description="Info commands for the bot and your server"
             embed.add_field(name="Voice Channels", value="1 Voice Channel")
 
         else:
-            embed.add_field(name="Voice Channels", value="{len(ctx.guild.voice_channels)} Voice Channels")
+            embed.add_field(name="Voice Channels", value=f"{len(ctx.guild.voice_channels)} Voice Channels")
 
         await ctx.send(embed=embed)
 
