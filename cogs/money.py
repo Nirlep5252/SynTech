@@ -56,7 +56,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send(f"Please run `{ctx.clean_prefix}work`")
 
         else:
-            money_number = random.randint(1, 25)
+            money_number = random.randint(10, 60)
             responses = ['Coder', "PornStar", "EpicBot Dev", "Dog Walker"]
             jobs = random.choice(responses)
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + money_number, "bank": e['bank']}})
