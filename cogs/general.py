@@ -4,14 +4,17 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import ERROR_COLOR, MAIN_COLOR, FUN_COLOR
+from config import ERROR_COLOR, MAIN_COLOR, FUN_COLOR, CHAT_BOT_CHANNEL
 import random
 import aiohttp
 from utils.button import Counter, Pages
 from animec import Aninews
+import os
 
 news = Aninews()
 
+CHAT_API = os.getenv('CHAT_API')
+CHAT_BIN_ID = os.getenv('CHAT_BID')
 
 class general(commands.Cog, description="This well be where all fun commands are"):
     def __init__(self, bot):
@@ -20,6 +23,18 @@ class general(commands.Cog, description="This well be where all fun commands are
     @commands.Cog.listener()
     async def on_ready(self):
         logging.info('General is ready')
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        elif message.channel.id == CHAT_BOT_CHANNEL:
+         async with aiohttp.ClientSession() as session:
+            request = await session.get(f'http://api.brainshop.ai/get?bid={CHAT_BIN_ID}&key={CHAT_API}&uid=[uid]&msg={message.content}')
+            json = await request.json()
+            await message.channel.send(f"{json['cnt']}")
+
 
     @commands.command()
     async def remindme(self, ctx, time, *, reminder):
@@ -140,6 +155,12 @@ class general(commands.Cog, description="This well be where all fun commands are
         embeds = [(discord.Embed(title=f"{news.titles[i]}", description=f"{news.description[i]}", color=MAIN_COLOR)) for i in range(0, len(news.titles))]
         await ctx.send(embed=embed, view=Pages(ctx, embeds))
 
+    @commands.command()
+    async def chat(self, ctx, *, text=None):
+        async with aiohttp.ClientSession() as session:
+            request = await session.get(f'http://api.brainshop.ai/get?bid={CHAT_BIN_ID}&key={CHAT_API}&uid=[uid]&msg={text}')
+            json = await request.json()
+            await ctx.send(f"{json['cnt']}")
 
 def setup(bot):
     bot.add_cog(general(bot=bot))

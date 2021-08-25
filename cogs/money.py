@@ -3,13 +3,14 @@ import random
 import discord
 
 from discord.ext import commands
-from typing import Optional
+from typing import Optional, Union
 from config import EMOJIS_FOR_COGS, MAIN_COLOR, MONEY_EMOJI
 from utils.database import db
 from utils.constants import items
 from utils.converters import ItemConverter
 from utils.classes import Item
-from utils.exceptions import NoMoney
+from utils.exceptions import NoMoney, has_item
+from utils.button import Search
 
 
 class money(commands.Cog, description="Make money then sleep"):
@@ -44,32 +45,32 @@ class money(commands.Cog, description="Make money then sleep"):
     async def work(self, ctx):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
         if e is None:
-            number = random.randint(10, 60)
+            number = random.randint(50, 200)
             responses = ['Coder', "PornStar", "EpicBot Dev", "Dog Walker"]
             jobs = random.choice(responses)
             money = {"guild_id": ctx.guild.id, "_user": ctx.author.id, "money": number, "bank": 0}
             db.collection.insert_one(money)
-            embed = discord.Embed(title="Work", description=f"You worked as a {jobs} for {number}{MONEY_EMOJI}", color=MAIN_COLOR)
+            embed = discord.Embed(title="Work", description=f"You worked as a {jobs} for {MONEY_EMOJI} {number}", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
         elif e['bank'] is None:
             await ctx.send(f"Please run `{ctx.clean_prefix}work`")
 
         else:
-            money_number = random.randint(10, 60)
+            money_number = random.randint(50, 200)
             responses = ['Coder', "PornStar", "EpicBot Dev", "Dog Walker"]
             jobs = random.choice(responses)
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + money_number, "bank": e['bank']}})
-            embed = discord.Embed(title="Work", description=f"You worked as a {jobs} for {money_number}{MONEY_EMOJI}", color=MAIN_COLOR)
+            embed = discord.Embed(title="Work", description=f"You worked as a {jobs} for {MONEY_EMOJI} {money_number}", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
-    @commands.command()
-    async def transfer(self, ctx, money_stuff: int):
+    @commands.command(aliases=['deposit'])
+    async def transfer(self, ctx, money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
-        all = 0
-        if e['money'] >= money_stuff:
-            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - money_stuff, "bank": e['bank'] + money_stuff}})
-            embed = discord.Embed(title="Transfer", description=f"{money_stuff}{MONEY_EMOJI} to your bank account", color=MAIN_COLOR)
+
+        if money_stuff == "all":
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - e['money'], "bank": e['bank'] + e['money']}})
+            embed = discord.Embed(title="Transfer", description=f"All of your {MONEY_EMOJI} was moved to your bank account", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
         elif e is None:
@@ -78,27 +79,39 @@ class money(commands.Cog, description="Make money then sleep"):
         elif e['bank'] is None:
             await ctx.send(f"Please run `{ctx.clean_prefix}work`")
 
-        elif money_stuff == all:
-            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - e['money'], "bank": e['bank'] + e['money']}})
-            embed = discord.Embed(title="Transfer", description=f"{money_stuff}{MONEY_EMOJI} to your bank account", color=MAIN_COLOR)
+        elif e['money'] >= money_stuff:
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - money_stuff, "bank": e['bank'] + money_stuff}})
+            embed = discord.Embed(title="Transfer", description=f"{MONEY_EMOJI} {money_stuff} to your bank account", color=MAIN_COLOR)
             await ctx.send(embed=embed)
+
+        elif e is None:
+            ctx.send("No money lol")
+
+        elif e['bank'] is None:
+            await ctx.send(f"Please run `{ctx.clean_prefix}work`")
 
         else:
             await ctx.send("You don't have enough money")
 
     @commands.command()
-    async def withdraw(self, ctx, money_stuff: int):
+    async def withdraw(self, ctx,  money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
-        if e['bank'] >= money_stuff:
-            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + money_stuff, "bank": e['bank'] - money_stuff}})
-            embed = discord.Embed(title="Withdraw", description=f"{money_stuff}{MONEY_EMOJI} to your wallet", color=MAIN_COLOR)
+
+        if money_stuff == "all":
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + e['bank'], "bank": e['bank'] - e['bank']}})
+            embed = discord.Embed(title="Withdraw", description=f"All of your {MONEY_EMOJI} was put into your wallet", color=MAIN_COLOR)
             await ctx.send(embed=embed)
+
+        elif e is None:
+            ctx.send("No money lol")
 
         elif e['bank'] is None:
             await ctx.send(f"Please run `{ctx.clean_prefix}work`")
 
-        elif e is None:
-            ctx.send("No money lol")
+        elif e['bank'] >= money_stuff:
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + money_stuff, "bank": e['bank'] - money_stuff}})
+            embed = discord.Embed(title="Withdraw", description=f"{MONEY_EMOJI} {money_stuff} to your wallet", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
 
         else:
             await ctx.send("You don't have enough money")
@@ -130,7 +143,7 @@ class money(commands.Cog, description="Make money then sleep"):
 
         if e['money'] >= number:
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": member.id}, update={"$set": {"money": e['money'] - number, "bank": e['bank']}})
-            await ctx.send(f"You took {number}{MONEY_EMOJI} from {member.name}")
+            await ctx.send(f"You took {MONEY_EMOJI} {number} from {member.name}")
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": a['money'] + number, "bank": a['bank']}})
 
         elif e is None:
@@ -226,7 +239,7 @@ class money(commands.Cog, description="Make money then sleep"):
         )
         embed = discord.Embed(
             title="Item(s) Bought!",
-            description=f"You bought {item.name} {amount} time(s) for {item.prize * amount} {MONEY_EMOJI}",
+            description=f"You bought {item.name} {amount} time(s) for {MONEY_EMOJI} {item.prize * amount}",
             color=MAIN_COLOR
         )
         await ctx.reply(embed=embed)
@@ -250,6 +263,76 @@ class money(commands.Cog, description="Make money then sleep"):
                     embed.add_field(name=f"{item.emoji} {item.name.title()}", value=amount, inline=False)
                 await ctx.send(embed=embed)
 
+    @has_item("fishing-rod")
+    @commands.command()
+    @commands.cooldown(1, 300, commands.BucketType.member)
+    async def fish(self, ctx):
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
+        if e is None:
+            number = random.randint(15, 250)
+            money = {"guild_id": ctx.guild.id, "_user": ctx.author.id, "money": number, "bank": 0}
+            db.collection.insert_one(money)
+            embed = discord.Embed(title="Fishing", description=f"You made {MONEY_EMOJI} {number} from fishing", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+        elif e['bank'] is None:
+            await ctx.send(f"Please run `{ctx.clean_prefix}work`")
+
+        else:
+            number = random.randint(15, 250)
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
+            embed = discord.Embed(title="Fishing", description=f"You made {MONEY_EMOJI} {number} from fishing", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+    @has_item("shovel")
+    @commands.command()
+    @commands.cooldown(1, 600, commands.BucketType.member)
+    async def dig(self, ctx):
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
+        if e is None:
+            number = random.randint(15, 300)
+            money = {"guild_id": ctx.guild.id, "_user": ctx.author.id, "money": number, "bank": 0}
+            db.collection.insert_one(money)
+            embed = discord.Embed(title="Dig", description=f"You made {MONEY_EMOJI} {number} from digging", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+        elif e['bank'] is None:
+            await ctx.send(f"Please run `{ctx.clean_prefix}work`")
+
+        else:
+            number = random.randint(15, 300)
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
+            embed = discord.Embed(title="Dig", description=f"You made {MONEY_EMOJI} {number} from digging", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+    @commands.command()
+    async def search(self, ctx):
+        embed = discord.Embed(title="Search", description=f"You can search one of the 3 options for money (You can make up to {MONEY_EMOJI} 1000)", color=MAIN_COLOR)
+        await ctx.send(embed=embed, view=Search(ctx))
+
+    @commands.command()
+    async def give(self, ctx, member: discord.Member,  money_stuff: Union[int]):
+        a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})
+
+        if a['bank'] is None:
+            await ctx.send("This user has no bank")
+
+
+        e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
+        if e['money'] >= money_stuff:
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": member.id}, update={"$set": {"money": a['money'] + money_stuff, "bank": a['bank']}})
+            embed = discord.Embed(title="Given", description=f"You gave {MONEY_EMOJI} {money_stuff} to {member.name}", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - money_stuff}})
+
+        elif e['money'] is None:
+            await ctx.send(f"Please run `{ctx.clean_prefix}work`")
+
+        elif e is None:
+            ctx.send("No money lol")
+
+        else:
+            await ctx.send("You don't have enough money")
 
 def setup(bot):
     bot.add_cog(money(bot=bot))

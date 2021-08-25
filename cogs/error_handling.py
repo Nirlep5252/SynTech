@@ -1,5 +1,5 @@
 import logging
-from utils.exceptions import ItemNotFound, NoMoney
+from utils.exceptions import ItemNotFound, NoItem, NoMoney
 import discord
 from config import ERROR_COLOR, ERROR_CHANNEL
 
@@ -44,6 +44,8 @@ class ErrorHandling(commands.Cog, name="on command error"):
                 color=ERROR_COLOR
             )
             await ctx.reply(embed=embed)
+        elif isinstance(error, NoItem):
+            return await ctx.reply(f"You need a `{error.item}` for this!")
         elif isinstance(error, NoMoney):
             embed = discord.Embed(
                 title="You don't have enough money!",

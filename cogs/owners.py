@@ -3,7 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import VERIFIED, MAIN_COLOR
+from config import VERIFIED, MAIN_COLOR, SUGGESTIONS_CHANNEL
 from utils.button import Close, Ticket, Verify
 from utils.database import db
 import asyncio
@@ -105,6 +105,15 @@ class owners(commands.Cog, description="No go away developers only"):
         await asyncio.sleep(1)
         await sys.exit()
 
+    @commands.command()
+    async def suggest(self, ctx, *, text=None):
+        channel = self.bot.get_channel(SUGGESTIONS_CHANNEL)
+        if text==None:
+         await ctx.send("Please add text")
+        else:
+            embed = discord.Embed(title="Suggestion", description=f"```Suggestion: {text}\nSent by: {ctx.author.name} ({ctx.author.id})\nServer: {ctx.guild.name} ({ctx.author.id})```", color=MAIN_COLOR)
+            await ctx.send("It was been sent")
+            await channel.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(owners(bot=bot))
