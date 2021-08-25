@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI, TICKETS_CATEGORY, STAFF_ROLE, FORWARD_ARROW, BACK_ARROW
+from config import Website_link, MAIN_COLOR, VERIFIED, TICKET_EMOJI, CLOSE_EMOJI, TICKETS_CATEGORY, STAFF_ROLE, FORWARD_ARROW, BACK_ARROW, MONEY_EMOJI
 from utils.database import db
 from typing import List
 import random
@@ -159,6 +159,97 @@ class Counter(discord.ui.View):
         button.label = str(number + 1)
 
         await interaction.response.edit_message(view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction):
+        if interaction.user == self.ctx.author:
+            return True
+        await interaction.response.send_message("Not your command", ephemeral=True)
+
+class Search(discord.ui.View):
+    def __init__(self, ctx, *, timeout=180.0):
+        super().__init__(timeout=timeout)
+        self.ctx = ctx
+        self.value = None
+
+    @discord.ui.button(label="House", style=discord.ButtonStyle.blurple)
+    async def house(self, button: discord.ui.Button, interaction: discord.Interaction):
+        e = db.collection.find_one({"guild_id": interaction.guild.id, "_user": interaction.user.id})
+        if e is None:
+            number = random.randint(15, 800)
+            money = {"guild_id": interaction.guild.id, "_user": interaction.user.id, "money": number, "bank": 0}
+            db.collection.insert_one(money)
+            embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            self.value = False
+            self.stop()
+
+        elif e['bank'] is None:
+         await interaction.response.send_message("You need a bank account", ephemeral=True)
+         self.value = False
+         self.stop()
+
+        else:
+            number = random.randint(15, 800)
+            db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
+            embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            self.value = False
+            self.stop()
+
+    @discord.ui.button(label="Dumpster", style=discord.ButtonStyle.red)
+    async def dumpster(self, button: discord.ui.Button, interaction: discord.Interaction):
+        e = db.collection.find_one({"guild_id": interaction.guild.id, "_user": interaction.user.id})
+        if e is None:
+            number = random.randint(15, 1000)
+            money = {"guild_id": interaction.guild.id, "_user": interaction.user.id, "money": number, "bank": 0}
+            db.collection.insert_one(money)
+            embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            button.disabled = True
+            self.value = False
+            self.stop()
+
+        elif e['bank'] is None:
+         await interaction.response.send_message("You need a bank account", ephemeral=True)
+         self.value = False
+         self.stop()
+
+        else:
+            number = random.randint(15, 1000)
+            db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
+            embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            button.disabled = True
+            self.value = False
+            self.stop()
+
+    @discord.ui.button(label="Nirleps House", style=discord.ButtonStyle.red)
+    async def hose2(self, button: discord.ui.Button, interaction: discord.Interaction):
+        e = db.collection.find_one({"guild_id": interaction.guild.id, "_user": interaction.user.id})
+        if e is None:
+            number = random.randint(15, 700)
+            money = {"guild_id": interaction.guild.id, "_user": interaction.user.id, "money": number, "bank": 0}
+            db.collection.insert_one(money)
+            embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} in Nirleps House", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            button.disabled = True
+            self.value = False
+            self.stop()
+
+        elif e['bank'] is None:
+         await interaction.response.send_message("You need a bank account", ephemeral=True)
+         self.value = False
+         self.stop()
+
+        else:
+            number = random.randint(15, 700)
+            db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
+            embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} in Nirleps House", color=MAIN_COLOR)
+            await interaction.response.send_message(embed=embed)
+            button.disabled = True
+            self.value = False
+            self.stop()
+
 
     async def interaction_check(self, interaction: discord.Interaction):
         if interaction.user == self.ctx.author:
