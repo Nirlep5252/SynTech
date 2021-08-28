@@ -4,17 +4,15 @@ import logging
 import discord
 from discord.ext import commands
 
-from config import ERROR_COLOR, MAIN_COLOR, FUN_COLOR, CHAT_BOT_CHANNEL
+from config import ERROR_COLOR, MAIN_COLOR, FUN_COLOR, CHAT_BOT_CHANNEL, BAD_WORDS
 import random
 import aiohttp
 from utils.button import Counter, Pages
+from utils.database import db
 from animec import Aninews
 import os
 
 news = Aninews()
-
-CHAT_API = os.getenv('CHAT_API')
-CHAT_BIN_ID = os.getenv('CHAT_BID')
 
 class general(commands.Cog, description="This well be where all fun commands are"):
     def __init__(self, bot):
@@ -29,11 +27,11 @@ class general(commands.Cog, description="This well be where all fun commands are
         if message.author.bot:
             return
 
-        elif message.channel.id == CHAT_BOT_CHANNEL:
+        if message.channel.id == CHAT_BOT_CHANNEL:
          async with aiohttp.ClientSession() as session:
-            request = await session.get(f'http://api.brainshop.ai/get?bid={CHAT_BIN_ID}&key={CHAT_API}&uid=[uid]&msg={message.content}')
+            request = await session.get(f'https://api.monkedev.com/fun/chat?msg={message.content}')
             json = await request.json()
-            await message.channel.send(f"{json['cnt']}")
+            await message.reply(f"{json['response']}")
 
 
     @commands.command()
@@ -158,9 +156,9 @@ class general(commands.Cog, description="This well be where all fun commands are
     @commands.command()
     async def chat(self, ctx, *, text=None):
         async with aiohttp.ClientSession() as session:
-            request = await session.get(f'http://api.brainshop.ai/get?bid={CHAT_BIN_ID}&key={CHAT_API}&uid=[uid]&msg={text}')
+            request = await session.get(f'https://api.monkedev.com/fun/chat?msg={text}')
             json = await request.json()
-            await ctx.send(f"{json['cnt']}")
+            await ctx.reply(f"{json['response']}")
 
 def setup(bot):
     bot.add_cog(general(bot=bot))
