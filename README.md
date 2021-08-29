@@ -15,7 +15,10 @@ DATABASE_NAME=Mongo Name here
 DATABASE_PASS=Mongo Password here
 WEBHOOK_1=Server1 webhook here
 WEBHOOK_2=Server2 webhook here
+CHAT_BID=
+CHAT_API_KEY=
 ```
+get your chat api and bid [here](https://brainshop.ai/)
 You can get a mongo link [here](https://www.mongodb.com/)
 
 <h1 align="center">Contributors!</h1>
