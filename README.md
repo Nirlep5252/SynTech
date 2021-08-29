@@ -19,6 +19,7 @@ CHAT_BID=
 CHAT_API_KEY=
 ```
 get your chat api and bid [here](https://brainshop.ai/)
+
 You can get a mongo link [here](https://www.mongodb.com/)
 
 <h1 align="center">Contributors!</h1>
