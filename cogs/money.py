@@ -64,11 +64,16 @@ class money(commands.Cog, description="Make money then sleep"):
             embed = discord.Embed(title="Work", description=f"You worked as a {jobs} for {MONEY_EMOJI} {money_number}", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
-    @commands.command(aliases=['deposit'])
+    @commands.command(aliases=['deposit', 'dep'])
     async def transfer(self, ctx, money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
 
         if money_stuff == "all":
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - e['money'], "bank": e['bank'] + e['money']}})
+            embed = discord.Embed(title="Transfer", description=f"All of your {MONEY_EMOJI} was moved to your bank account", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+        elif money_stuff == "max":
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] - e['money'], "bank": e['bank'] + e['money']}})
             embed = discord.Embed(title="Transfer", description=f"All of your {MONEY_EMOJI} was moved to your bank account", color=MAIN_COLOR)
             await ctx.send(embed=embed)
@@ -84,12 +89,6 @@ class money(commands.Cog, description="Make money then sleep"):
             embed = discord.Embed(title="Transfer", description=f"{MONEY_EMOJI} {money_stuff} to your bank account", color=MAIN_COLOR)
             await ctx.send(embed=embed)
 
-        elif e is None:
-            ctx.send("No money lol")
-
-        elif e['bank'] is None:
-            await ctx.send(f"Please run `{ctx.clean_prefix}work`")
-
         else:
             await ctx.send("You don't have enough money")
 
@@ -98,6 +97,11 @@ class money(commands.Cog, description="Make money then sleep"):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
 
         if money_stuff == "all":
+            db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + e['bank'], "bank": e['bank'] - e['bank']}})
+            embed = discord.Embed(title="Withdraw", description=f"All of your {MONEY_EMOJI} was put into your wallet", color=MAIN_COLOR)
+            await ctx.send(embed=embed)
+
+        elif money_stuff == "max":
             db.collection.update_one(filter={"guild_id": ctx.guild.id, "_user": ctx.author.id}, update={"$set": {"money": e['money'] + e['bank'], "bank": e['bank'] - e['bank']}})
             embed = discord.Embed(title="Withdraw", description=f"All of your {MONEY_EMOJI} was put into your wallet", color=MAIN_COLOR)
             await ctx.send(embed=embed)
@@ -306,6 +310,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 600, commands.BucketType.member)
     async def search(self, ctx):
         embed = discord.Embed(title="Search", description=f"You can search one of the 3 options for money (You can make up to {MONEY_EMOJI} 1000)", color=MAIN_COLOR)
         await ctx.send(embed=embed, view=Search(ctx))

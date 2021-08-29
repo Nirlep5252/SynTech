@@ -1,7 +1,7 @@
 import logging
 from utils.exceptions import ItemNotFound, NoItem, NoMoney
 import discord
-from config import ERROR_COLOR, ERROR_CHANNEL
+from config import ERROR_COLOR, ERROR_CHANNEL, MONEY_EMOJI
 
 from discord.ext import commands
 from discord.ext.commands import MissingPermissions, CheckFailure, CommandNotFound, MissingRequiredArgument, BadArgument
@@ -36,7 +36,6 @@ class ErrorHandling(commands.Cog, name="on command error"):
         elif isinstance(error, commands.NotOwner):
             embed = discord.Embed(title="Developer Only", description="You must be a developer to run this command", color=ERROR_COLOR)
             await ctx.send(embed=embed, delete_after=5)
-
         elif isinstance(error, ItemNotFound):
             embed = discord.Embed(
                 title="Item doesn't exist!",
@@ -49,20 +48,18 @@ class ErrorHandling(commands.Cog, name="on command error"):
         elif isinstance(error, NoMoney):
             embed = discord.Embed(
                 title="You don't have enough money!",
-                description=f"You have `{error.current}$` but you need `{error.required}$` for this!",
+                description=f"You have `{MONEY_EMOJI} {error.current}` but you need `{error.required}$` for this!",
                 color=ERROR_COLOR
             )
             await ctx.reply(embed=embed)
         elif isinstance(error, CheckFailure):
-            # embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
-            # await ctx.send(embed=embed)
             return
         elif isinstance(error, BadArgument):
             embed = discord.Embed(title="ERROR!", description=f"{error}", color=ERROR_COLOR)
             await ctx.send(embed=embed)
         else:
             channel = self.bot.get_channel(ERROR_CHANNEL)
-            embed = discord.Embed(title="Error!", description=f"Error:\n```{error}```\nServer:\n```{ctx.guild.name}```", color=ERROR_COLOR)
+            embed = discord.Embed(title="Error!", description=f"Error:\n```{error}```\nServer:\n```{ctx.guild.name}```\nCommand:\n```{ctx.message.content}```", color=ERROR_COLOR)
             await channel.send(embed=embed)
             logging.info(error)
 
