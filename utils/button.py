@@ -180,21 +180,24 @@ class Search(discord.ui.View):
             db.collection.insert_one(money)
             embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         elif e['bank'] is None:
          await interaction.response.send_message("You need a bank account", ephemeral=True)
-         self.value = False
-         self.stop()
+        for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         else:
             number = random.randint(15, 800)
             db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
             embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
     @discord.ui.button(label="Dumpster", style=discord.ButtonStyle.red)
     async def dumpster(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -205,23 +208,24 @@ class Search(discord.ui.View):
             db.collection.insert_one(money)
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            button.disabled = True
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         elif e['bank'] is None:
          await interaction.response.send_message("You need a bank account", ephemeral=True)
-         self.value = False
-         self.stop()
+         for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         else:
             number = random.randint(15, 1000)
             db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            button.disabled = True
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
     @discord.ui.button(label="Nirleps House", style=discord.ButtonStyle.red)
     async def hose2(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -232,23 +236,24 @@ class Search(discord.ui.View):
             db.collection.insert_one(money)
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} in Nirleps House", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            button.disabled = True
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         elif e['bank'] is None:
          await interaction.response.send_message("You need a bank account", ephemeral=True)
-         self.value = False
-         self.stop()
+         for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
         else:
             number = random.randint(15, 700)
             db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} in Nirleps House", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
-            button.disabled = True
-            self.value = False
-            self.stop()
+            for item in self.children:
+             item.disabled = True
+             await interaction.message.edit(view=self)
 
 
     async def interaction_check(self, interaction: discord.Interaction):
