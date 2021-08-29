@@ -18,6 +18,8 @@ DEVELOPERS = [733536002563637298, 321750582912221184, 558861606063308822]  # add
 VERSION = "1.3"
 PREFIXES = ['!']
 BAD_WORDS = ["fuck"]
+API = f"{os.getenv('CHAT_API_KEY')}"
+BID = f"{os.getenv('CHAT_BID')}"
 
 # Emojis
 
