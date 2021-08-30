@@ -10,7 +10,7 @@ from utils.constants import items
 from utils.converters import ItemConverter
 from utils.classes import Item
 from utils.exceptions import NoMoney, has_item
-from utils.button import Search
+from utils.button import LeaderboardView, Search
 
 
 class money(commands.Cog, description="Make money then sleep"):
@@ -93,7 +93,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send("You don't have enough money")
 
     @commands.command()
-    async def withdraw(self, ctx,  money_stuff: Union[int, str]):
+    async def withdraw(self, ctx, money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
 
         if money_stuff == "all":
@@ -195,6 +195,24 @@ class money(commands.Cog, description="Make money then sleep"):
         else:
             embed = discord.Embed(title=f"Balance For {member.name}", description=f"Wallet: {MONEY_EMOJI} {e['money']}\nBank: {MONEY_EMOJI} {e['bank']}", color=MAIN_COLOR)
             await ctx.send(embed=embed)
+
+    @commands.command(aliases=['lb'])
+    async def leaderboard(self, ctx: commands.Context):
+        guild_lb = db.collection.find({"guild_id": ctx.guild.id}).limit(10)
+        global_lb = db.collection.find({}).limit(10)
+
+        guild_embed = discord.Embed(
+            title="Guild Leaderboard",
+            description="\n".join([f"**{self.bot.get_user(data['_user'])}** - `{data['money']}`" for data in guild_lb]),
+            color=MAIN_COLOR
+        )
+        global_embed = discord.Embed(
+            title="Global Leaderboard",
+            description="\n".join([f"**{self.bot.get_user(data['_user'])}** - `{data['money']}`" for data in global_lb]),
+            color=MAIN_COLOR
+        )
+        view = LeaderboardView(ctx, guild_embed, global_embed)
+        await ctx.send(embed=guild_embed, view=view)
 
     @commands.command()
     @commands.cooldown(1, 86400, commands.BucketType.member)
@@ -316,12 +334,11 @@ class money(commands.Cog, description="Make money then sleep"):
         await ctx.send(embed=embed, view=Search(ctx))
 
     @commands.command()
-    async def give(self, ctx, member: discord.Member,  money_stuff: Union[int]):
+    async def give(self, ctx, member: discord.Member, money_stuff: Union[int]):
         a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": member.id})
 
         if a['bank'] is None:
             await ctx.send("This user has no bank")
-
 
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
         if e['money'] >= money_stuff:
@@ -338,6 +355,7 @@ class money(commands.Cog, description="Make money then sleep"):
 
         else:
             await ctx.send("You don't have enough money")
+
 
 def setup(bot):
     bot.add_cog(money(bot=bot))

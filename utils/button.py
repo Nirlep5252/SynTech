@@ -260,3 +260,28 @@ class Search(discord.ui.View):
         if interaction.user == self.ctx.author:
             return True
         await interaction.response.send_message("Not your command", ephemeral=True)
+
+
+class LeaderboardView(discord.ui.View):
+    def __init__(self, ctx: commands.Context, embed1: discord.Embed, embed2: discord.Embed):
+        super().__init__(timeout=None)
+        self.ctx = ctx
+        self.embed1 = embed1
+        self.embed2 = embed2
+
+    @discord.ui.button(label="Server Leaderboard", style=discord.ButtonStyle.blurple, disabled=True)
+    async def guild_leaderboard(self, button: discord.ui.Button, interaction: discord.Interaction):
+        self.children[1].disabled = False
+        button.disabled = True
+        await interaction.message.edit(embed=self.embed1, view=self)
+
+    @discord.ui.button(label="Global Leaderboard", style=discord.ButtonStyle.blurple)
+    async def global_leaderboard(self, button: discord.ui.Button, interaction: discord.Interaction):
+        self.children[0].disabled = False
+        button.disabled = True
+        await interaction.message.edit(embed=self.embed2, view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user == self.ctx.author:
+            return True
+        await interaction.response.send_message("Not your command", ephemeral=True)
