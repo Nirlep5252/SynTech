@@ -8,6 +8,7 @@ from utils.database import db, prefix_collection
 
 from config import PREFIXES, DEVELOPERS
 
+
 async def get_prefix(bot: commands.AutoShardedBot, message: discord.Message) -> list[str]:
     if not message.guild:
         return PREFIXES
