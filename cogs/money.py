@@ -65,6 +65,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send(embed=embed)
 
     @commands.command(aliases=['deposit', 'dep'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def transfer(self, ctx, money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
 
@@ -93,6 +94,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send("You don't have enough money")
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def withdraw(self, ctx, money_stuff: Union[int, str]):
         e = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
 
@@ -121,7 +123,7 @@ class money(commands.Cog, description="Make money then sleep"):
             await ctx.send("You don't have enough money")
 
     @commands.command()
-    @commands.cooldown(1, 18000, commands.BucketType.member)
+    @commands.cooldown(1, 3600, commands.BucketType.member)
     async def rob(self, ctx, member: discord.Member = None):
         a = db.collection.find_one({"guild_id": ctx.guild.id, "_user": ctx.author.id})
         number = 20
