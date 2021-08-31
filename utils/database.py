@@ -11,3 +11,5 @@ db = client['cluster0']
 
 collection = db["cluster0"]
 prefix_collection = db["prefix"]
+logs_collection = db["logs"]
+level_collection = db["level"]
