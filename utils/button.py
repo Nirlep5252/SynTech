@@ -175,7 +175,7 @@ class Search(discord.ui.View):
     async def house(self, button: discord.ui.Button, interaction: discord.Interaction):
         e = db.collection.find_one({"guild_id": interaction.guild.id, "_user": interaction.user.id})
         if e is None:
-            number = random.randint(15, 800)
+            number = random.randint(15, 500)
             money = {"guild_id": interaction.guild.id, "_user": interaction.user.id, "money": number, "bank": 0}
             db.collection.insert_one(money)
             embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
@@ -191,7 +191,7 @@ class Search(discord.ui.View):
              await interaction.message.edit(view=self)
 
         else:
-            number = random.randint(15, 800)
+            number = random.randint(15, 500)
             db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
             embed = discord.Embed(title="House", description=f"You found {MONEY_EMOJI} {number} from a house", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
@@ -203,7 +203,7 @@ class Search(discord.ui.View):
     async def dumpster(self, button: discord.ui.Button, interaction: discord.Interaction):
         e = db.collection.find_one({"guild_id": interaction.guild.id, "_user": interaction.user.id})
         if e is None:
-            number = random.randint(15, 1000)
+            number = random.randint(15, 600)
             money = {"guild_id": interaction.guild.id, "_user": interaction.user.id, "money": number, "bank": 0}
             db.collection.insert_one(money)
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
@@ -219,7 +219,7 @@ class Search(discord.ui.View):
              await interaction.message.edit(view=self)
 
         else:
-            number = random.randint(15, 1000)
+            number = random.randint(15, 600)
             db.collection.update_one(filter={"guild_id": interaction.guild.id, "_user": interaction.user.id}, update={"$set": {"money": e['money'] + number, "bank": e['bank']}})
             embed = discord.Embed(title="Dumpster", description=f"You found {MONEY_EMOJI} {number} from a Dumpster", color=MAIN_COLOR)
             await interaction.response.send_message(embed=embed)
